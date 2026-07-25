@@ -39,22 +39,24 @@
     <span class="k">Cost:</span><span class="v">$0</span>
   </div>
 
-  <div id="signup" class="frame" style="padding:28px;margin:40px 0 0">
-    <div class="meta" style="margin-bottom:6px">Get the next file</div>
-    <p style="margin:0 0 20px;color:var(--muted)">this file stays open — no email needed. drop it below only if you want file no. 002 when it drops.</p>
-    <form id="signupForm" class="capture" novalidate>
-      <label class="lab" for="signupEmail" style="width:100%;margin-bottom:0">Secure channel</label>
-      <input id="signupEmail" name="email" class="input" type="email" required
-             placeholder="name@domain.com" autocomplete="email" spellcheck="false">
-      <button id="signupBtn" type="submit" class="btn solid">[ Add me ]</button>
-    </form>
-    <div id="signupStatus" class="status micro">No spam. Declassify (unsubscribe) any time.</div>
-  </div>
+  <div data-signup="dossier-guide-top" style="margin:40px 0 0">
+    <div class="frame" data-signup-box style="padding:28px">
+      <div class="meta" style="margin-bottom:6px">Get the next file</div>
+      <p style="margin:0 0 20px;color:var(--muted)">this file stays open — no email needed. drop it below only if you want file no. 002 when it drops.</p>
+      <form class="capture" data-signup-form novalidate>
+        <label class="lab" for="signupEmailTop" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="signupEmailTop" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
+        <button type="submit" class="btn solid" data-signup-btn>[ Add me ]</button>
+      </form>
+      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
+    </div>
 
-  <div id="signupOnFile" class="frame dim" style="display:none;padding:14px 20px;margin:40px 0 0;
-       justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-    <span class="meta">On the list — <span id="signupOnFileEmail" style="color:var(--phosphor)"></span></span>
-    <span class="micro" style="flex:none">File no. 002 pending</span>
+    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
+         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="meta">On the list — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <span class="micro" style="flex:none">File no. 002 pending</span>
+    </div>
   </div>
 
   <div class="divider">//──────//</div>
@@ -177,14 +179,27 @@
     </div>
   </section>
 
-  <section style="margin-top:64px">
-    <div class="h2">Why this is a Human OS move</div>
-    <hr class="rule">
-    <div style="margin-top:24px">
-      <p>the default is to consume whatever the feed hands you. this flips it. you decide the topic, you pick the sources, you make the thing that didnt exist yet.</p>
-      <p>let me know on x how you like this system.</p>
+  <div class="divider">//──────//</div>
+
+  <div data-signup="dossier-guide-end" style="margin:0">
+    <div class="frame" data-signup-box style="padding:28px">
+      <div class="meta" style="margin-bottom:6px">Before you close the file</div>
+      <p style="margin:0 0 20px;color:var(--muted)">that was file no. 001. if it earned it, leave a channel open and no. 002 arrives the same way — one file, no drip sequence.</p>
+      <form class="capture" data-signup-form novalidate>
+        <label class="lab" for="signupEmailEnd" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="signupEmailEnd" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
+        <button type="submit" class="btn solid" data-signup-btn>[ Add me ]</button>
+      </form>
+      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
     </div>
-  </section>
+
+    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
+         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="meta">On the list — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <span class="micro" style="flex:none">File no. 002 pending</span>
+    </div>
+  </div>
 
   <div class="foot">
     <span class="micro">End of file // The Dossier//</span>
@@ -200,64 +215,77 @@
     d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
 
   /* ---- signup ---- */
-  // Same Formspree form as the landing page, and the same localStorage key,
-  // so someone who signed up there isn't asked twice. Nothing here is
-  // redirecting, so unlike the landing page this can wait for the real
-  // response and report an actual failure instead of guessing.
+  // Drives every [data-signup] block on the page. A success in one flips
+  // them all, so the reader never sees a second form still asking after
+  // they've already signed up. Shares the landing page's Formspree form
+  // and localStorage key, so signing up there isn't asked again here.
+  // Nothing redirects on this page, so unlike the landing page this waits
+  // for the real response and reports an actual failure.
   (function(){
     var KEY = 'dossier_clearance';
     var SUBSCRIBE_ENDPOINT = 'https://formspree.io/f/xjgnplqz';
 
-    var box    = document.getElementById('signup');
-    var onFile = document.getElementById('signupOnFile');
-    var form   = document.getElementById('signupForm');
-    var input  = document.getElementById('signupEmail');
-    var btn    = document.getElementById('signupBtn');
-    var status = document.getElementById('signupStatus');
-
-    function setStatus(msg, kind){
-      status.textContent = msg;
-      status.className = 'status micro' + (kind ? ' ' + kind : '');
-    }
+    var blocks = [].slice.call(document.querySelectorAll('[data-signup]'));
+    if (!blocks.length) return;
 
     function showOnFile(email){
-      box.style.display = 'none';
-      onFile.style.display = 'flex';
-      document.getElementById('signupOnFileEmail').textContent = email;
+      blocks.forEach(function(block){
+        block.querySelector('[data-signup-box]').style.display = 'none';
+        var onFile = block.querySelector('[data-signup-onfile]');
+        onFile.style.display = 'flex';
+        onFile.querySelector('[data-signup-onfile-email]').textContent = email;
+      });
     }
 
     var existing = null;
     try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
     if (existing && existing.email) showOnFile(existing.email);
 
-    form.addEventListener('submit', function(ev){
-      ev.preventDefault();
-      var email = input.value.trim();
-      if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
-        setStatus('Invalid channel — check the address.', 'err');
-        input.focus();
-        return;
+    blocks.forEach(function(block){
+      var form   = block.querySelector('[data-signup-form]');
+      var input  = block.querySelector('[data-signup-input]');
+      var btn    = block.querySelector('[data-signup-btn]');
+      var status = block.querySelector('[data-signup-status]');
+      var idle   = btn.textContent;
+
+      function setStatus(msg, kind){
+        status.textContent = msg;
+        status.className = 'status micro' + (kind ? ' ' + kind : '');
       }
 
-      btn.disabled = true;
-      btn.textContent = '[ Transmitting… ]';
-      setStatus('Adding to the list…');
+      form.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        var email = input.value.trim();
+        if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
+          setStatus('Invalid channel — check the address.', 'err');
+          input.focus();
+          return;
+        }
 
-      fetch(SUBSCRIBE_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email: email, source: 'dossier-guide', ref: document.referrer || '' })
-      })
-      .then(function(r){
-        if (!r.ok) throw new Error('rejected');
-        try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
-        setStatus('On the list — file no. 002 will find you.', 'ok');
-        setTimeout(function(){ showOnFile(email); }, 1400);
-      })
-      .catch(function(){
-        btn.disabled = false;
-        btn.textContent = '[ Add me ]';
-        setStatus('Transmission failed. Try again in a moment.', 'err');
+        btn.disabled = true;
+        btn.textContent = '[ Transmitting… ]';
+        setStatus('Adding to the list…');
+
+        fetch(SUBSCRIBE_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            source: block.getAttribute('data-signup') || 'dossier-guide',
+            ref: document.referrer || ''
+          })
+        })
+        .then(function(r){
+          if (!r.ok) throw new Error('rejected');
+          try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
+          setStatus('On the list — file no. 002 will find you.', 'ok');
+          setTimeout(function(){ showOnFile(email); }, 1400);
+        })
+        .catch(function(){
+          btn.disabled = false;
+          btn.textContent = idle;
+          setStatus('Transmission failed. Try again in a moment.', 'err');
+        });
       });
     });
   })();

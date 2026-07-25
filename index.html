@@ -36,6 +36,26 @@
     <p style="margin:24px auto 0;max-width:46ch;text-align:center">the one you actually want to listen to, grounded on real research, ready in 2 to 5 minutes.</p>
   </div>
 
+  <div data-signup="dossier-site-top" style="margin:-1px 0 0">
+    <div class="frame" data-signup-box style="padding:28px;border-top-color:var(--line-dim)">
+      <div class="meta" style="margin-bottom:6px">Request clearance</div>
+      <p style="margin:0 0 20px;color:var(--muted)">drop your email and the file opens immediately. no course, no paywall, no drip sequence.</p>
+      <form class="capture" data-signup-form novalidate>
+        <label class="lab" for="emailTop" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="emailTop" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
+        <button type="submit" class="btn solid" data-signup-btn>[ Request clearance ]</button>
+      </form>
+      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
+    </div>
+
+    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
+         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="meta">Clearance on file — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <a class="btn sm" href="guide.html" style="flex:none">[ Open file → ]</a>
+    </div>
+  </div>
+
   <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
     <span class="k">Subject:</span><span class="v">DIY podcast system</span>
     <span class="k">Signal level:</span><span class="v" style="color:var(--accent)">High</span>
@@ -91,22 +111,22 @@
 
   <div class="divider">//──────//</div>
 
-  <section id="clearance">
-    <div class="frame" style="padding:32px 28px">
+  <section id="clearance" data-signup="dossier-site-end">
+    <div class="frame" data-signup-box style="padding:32px 28px">
       <div class="meta" style="margin-bottom:6px">Request clearance</div>
-      <p style="margin:0 0 20px;color:var(--muted)">drop your email and the file opens immediately. no course, no paywall, no drip sequence.</p>
-      <form id="clearanceForm" class="capture" novalidate>
-        <label class="lab" for="email" style="width:100%;margin-bottom:0">Secure channel</label>
-        <input id="email" name="email" class="input" type="email" required
-               placeholder="name@domain.com" autocomplete="email" spellcheck="false">
-        <button id="submitBtn" type="submit" class="btn solid">[ Request clearance ]</button>
+      <p style="margin:0 0 20px;color:var(--muted)">thats the whole file. one channel and it opens — no course, no paywall, no drip sequence.</p>
+      <form class="capture" data-signup-form novalidate>
+        <label class="lab" for="emailEnd" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="emailEnd" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
+        <button type="submit" class="btn solid" data-signup-btn>[ Request clearance ]</button>
       </form>
-      <div id="status" class="status micro">No spam. Declassify (unsubscribe) any time.</div>
+      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
     </div>
 
-    <div id="onFile" class="frame dim" style="display:none;padding:14px 20px;margin-top:20px;
+    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
          justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">Clearance on file — <span id="onFileEmail" style="color:var(--phosphor)"></span></span>
+      <span class="meta">Clearance on file — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
       <a class="btn sm" href="guide.html" style="flex:none">[ Open file → ]</a>
     </div>
   </section>
@@ -131,21 +151,11 @@
   document.getElementById('fileDate').textContent = code;
   document.getElementById('fileDate2').textContent = code;
 
-  var form   = document.getElementById('clearanceForm');
-  var input  = document.getElementById('email');
-  var btn    = document.getElementById('submitBtn');
-  var status = document.getElementById('status');
-
-  function setStatus(msg, kind){
-    status.textContent = msg;
-    status.className = 'status micro' + (kind ? ' ' + kind : '');
-  }
-
   // Formspree's AJAX endpoint answers the CORS preflight, so this can be a
   // normal JSON post. keepalive lets it outlive the redirect to the guide,
   // which fires 700ms later and would otherwise cancel it in flight. The
   // reader is never made to wait on the result.
-  function record(email){
+  function record(email, source){
     if (!SUBSCRIBE_ENDPOINT) return;
     try {
       fetch(SUBSCRIBE_ENDPOINT, {
@@ -157,42 +167,60 @@
         },
         body: JSON.stringify({
           email: email,
-          source: 'dossier-site',
+          source: source || 'dossier-site',
           ref: document.referrer || ''
         })
       }).catch(function(){});
     } catch(e){}
   }
 
-  var existing = null;
-  try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
-  if (existing && existing.email) {
-    var box = document.getElementById('onFile');
-    box.style.display = 'flex';
-    document.getElementById('onFileEmail').textContent = existing.email;
+  // Drives every [data-signup] block. Whichever one is used, both flip, so
+  // a returning reader isn't asked again further down the page.
+  var blocks = [].slice.call(document.querySelectorAll('[data-signup]'));
+
+  function showOnFile(email){
+    blocks.forEach(function(block){
+      block.querySelector('[data-signup-box]').style.display = 'none';
+      var onFile = block.querySelector('[data-signup-onfile]');
+      onFile.style.display = 'flex';
+      onFile.querySelector('[data-signup-onfile-email]').textContent = email;
+    });
   }
 
-  form.addEventListener('submit', function(ev){
-    ev.preventDefault();
-    var email = input.value.trim();
-    if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
-      setStatus('Invalid channel — check the address.', 'err');
-      input.focus();
-      return;
+  var existing = null;
+  try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
+  if (existing && existing.email) showOnFile(existing.email);
+
+  blocks.forEach(function(block){
+    var form   = block.querySelector('[data-signup-form]');
+    var input  = block.querySelector('[data-signup-input]');
+    var btn    = block.querySelector('[data-signup-btn]');
+    var status = block.querySelector('[data-signup-status]');
+
+    function setStatus(msg, kind){
+      status.textContent = msg;
+      status.className = 'status micro' + (kind ? ' ' + kind : '');
     }
 
-    btn.disabled = true;
-    btn.textContent = '[ Transmitting… ]';
-    setStatus('Verifying clearance…');
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var email = input.value.trim();
+      if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
+        setStatus('Invalid channel — check the address.', 'err');
+        input.focus();
+        return;
+      }
 
-    function grant(){
+      btn.disabled = true;
+      btn.textContent = '[ Transmitting… ]';
+      setStatus('Verifying clearance…');
+
+      record(email, block.getAttribute('data-signup'));
+
       try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
       setStatus('Clearance granted — opening file…', 'ok');
       setTimeout(function(){ window.location.href = 'guide.html'; }, 700);
-    }
-
-    record(email);
-    grant();
+    });
   });
 })();
 </script>

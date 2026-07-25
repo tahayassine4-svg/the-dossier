@@ -122,10 +122,10 @@
 (function(){
   var KEY = 'dossier_clearance';
 
-  // Google Apps Script web app URL — see google-sheet-collector.gs for the
-  // script and deploy steps. Paste the /exec URL here to start writing
-  // addresses to the sheet. Left null, the gate still works; the address
-  // just isn't recorded anywhere. Recording never blocks the reader.
+  // Formspree form URL, e.g. https://formspree.io/f/abcdwxyz — create the
+  // form at formspree.io, then paste its endpoint here. Left null, the gate
+  // still works; the address just isn't recorded anywhere. Recording never
+  // blocks the reader.
   var SUBSCRIBE_ENDPOINT = null;
 
   var d = new Date();
@@ -143,30 +143,25 @@
     status.className = 'status micro' + (kind ? ' ' + kind : '');
   }
 
-  // Fire-and-forget. text/plain keeps this a "simple" request, so the
-  // browser skips the CORS preflight an Apps Script web app can't answer,
-  // and sendBeacon lets the post outlive the redirect to the guide. The
-  // response is never read, so a failure here is silent by design.
+  // Formspree's AJAX endpoint answers the CORS preflight, so this can be a
+  // normal JSON post. keepalive lets it outlive the redirect to the guide,
+  // which fires 700ms later and would otherwise cancel it in flight. The
+  // reader is never made to wait on the result.
   function record(email){
     if (!SUBSCRIBE_ENDPOINT) return;
-    var payload = JSON.stringify({
-      email: email,
-      source: 'dossier-site',
-      ref: document.referrer || '',
-      ts: new Date().toISOString()
-    });
-    try {
-      if (navigator.sendBeacon &&
-          navigator.sendBeacon(SUBSCRIBE_ENDPOINT,
-            new Blob([payload], { type: 'text/plain;charset=UTF-8' }))) return;
-    } catch(e){}
     try {
       fetch(SUBSCRIBE_ENDPOINT, {
         method: 'POST',
-        mode: 'no-cors',
         keepalive: true,
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: payload
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+          source: 'dossier-site',
+          ref: document.referrer || ''
+        })
       }).catch(function(){});
     } catch(e){}
   }

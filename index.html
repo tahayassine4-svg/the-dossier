@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>THE DOSSIER // Make your own podcast on any topic — for free</title>
+<meta name="description" content="A free field guide: turn any topic into your own two-person podcast, grounded on real research, in 2 to 5 minutes. Two free tools, two copy-paste prompts.">
+<meta property="og:title" content="THE DOSSIER // Make your own podcast on any topic">
+<meta property="og:description" content="Two free tools. Two copy-paste prompts. Your own podcast on any topic, ready in 2 to 5 minutes.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/dossier.css">
+</head>
+<body>
+<div class="stage narrow">
+
+  <div class="nav">
+    <span class="logo">The Dossier//</span>
+    <div class="links">
+      <a href="#file">The file</a>
+      <a href="#clearance">Request clearance</a>
+    </div>
+  </div>
+
+  <div class="filehead" style="margin:40px 0 16px">
+    <span id="fileDate">20260725</span>
+    <span>File No. 001 // How-to</span>
+  </div>
+
+  <div class="frame" style="padding:64px 32px;text-align:center">
+    <div class="display">make your own podcast on any topic</div>
+    <div style="color:var(--accent-bright);font-weight:700;font-size:clamp(15px,2.6vw,20px);letter-spacing:.18em;text-transform:uppercase;margin-top:10px">(for free)<span class="cursor"></span></div>
+    <p style="margin:24px auto 0;max-width:46ch;text-align:center">the one you actually want to listen to, grounded on real research, ready in 2 to 5 minutes.</p>
+  </div>
+
+  <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
+    <span class="k">Subject:</span><span class="v">DIY podcast system</span>
+    <span class="k">Signal level:</span><span class="v" style="color:var(--accent)">High</span>
+    <span class="k">Status:</span><span class="v">Classified — clearance required</span>
+    <span class="k">File no:</span><span class="v">001 · <span id="fileDate2">20260725</span></span>
+  </div>
+
+  <div class="divider">//──────//</div>
+
+  <section id="file">
+    <div class="h2">The problem // <span style="color:var(--phosphor)">no one made the show you want</span></div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>if youre like me you have the same problem. you want to find a podcast to listen to, but none of the topics or channels are really about what you want to learn right now.</p>
+      <p>so i stopped waiting for someone to make it. i started making my own.</p>
+      <p>this file is the whole system: take your favourite or desired topic, ground it on actual good research, and create your OWN two-person podcast for it — fully for free.</p>
+    </div>
+  </section>
+
+  <section style="margin-top:56px">
+    <div class="h2">Contents // <span style="color:var(--phosphor)">what you get</span></div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <div class="filerow">
+        <span class="no">01</span>
+        <div class="body">
+          <div class="ttl">The source-finder prompt</div>
+          <p>one Perplexity prompt that returns the best videos on your topic, the key subtopics in learning order, and a clean list of urls to paste straight into NotebookLM.</p>
+        </div>
+      </div>
+      <div class="filerow">
+        <span class="no">02</span>
+        <div class="body">
+          <div class="ttl">The producer prompt</div>
+          <p>the NotebookLM instruction set that turns those sources into a sharp two-host discussion instead of a dry summary read-out.</p>
+        </div>
+      </div>
+      <div class="filerow">
+        <span class="no">03</span>
+        <div class="body">
+          <div class="ttl">The walkthrough + a worked example</div>
+          <p>the full run-through end to end, plus a real episode built with this exact method so you can hear the output before you spend a minute on it.</p>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:24px;color:var(--muted)">two tools. both free. plus 2 to 5 minutes of your time.</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px">
+      <span class="tag">NotebookLM</span>
+      <span class="tag">Perplexity</span>
+      <span class="tag dim">Cost: $0</span>
+    </div>
+  </section>
+
+  <div class="divider">//──────//</div>
+
+  <section id="clearance">
+    <div class="frame" style="padding:32px 28px">
+      <div class="meta" style="margin-bottom:6px">Request clearance</div>
+      <p style="margin:0 0 20px;color:var(--muted)">drop your email and the file opens immediately. no course, no paywall, no drip sequence.</p>
+      <form id="clearanceForm" class="capture" novalidate>
+        <label class="lab" for="email" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="email" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false">
+        <button id="submitBtn" type="submit" class="btn solid">[ Request clearance ]</button>
+      </form>
+      <div id="status" class="status micro">No spam. Declassify (unsubscribe) any time.</div>
+    </div>
+
+    <div id="onFile" class="frame dim" style="display:none;padding:14px 20px;margin-top:20px;
+         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="meta">Clearance on file — <span id="onFileEmail" style="color:var(--phosphor)"></span></span>
+      <a class="btn sm" href="guide.html" style="flex:none">[ Open file → ]</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span class="micro">The Dossier//</span>
+    <span class="micro">Forward at your discretion</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'dossier_clearance';
+
+  // Subscribe endpoint. GitHub Pages is static, so this must be a full
+  // external URL with CORS enabled for the Pages origin.
+  var SUBSCRIBE_ENDPOINT = '/api/subscribe';
+
+  var d = new Date();
+  var code = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  document.getElementById('fileDate').textContent = code;
+  document.getElementById('fileDate2').textContent = code;
+
+  var form   = document.getElementById('clearanceForm');
+  var input  = document.getElementById('email');
+  var btn    = document.getElementById('submitBtn');
+  var status = document.getElementById('status');
+
+  function setStatus(msg, kind){
+    status.textContent = msg;
+    status.className = 'status micro' + (kind ? ' ' + kind : '');
+  }
+
+  var existing = null;
+  try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
+  if (existing && existing.email) {
+    var box = document.getElementById('onFile');
+    box.style.display = 'flex';
+    document.getElementById('onFileEmail').textContent = existing.email;
+  }
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var email = input.value.trim();
+    if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
+      setStatus('Invalid channel — check the address.', 'err');
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '[ Transmitting… ]';
+    setStatus('Verifying clearance…');
+
+    fetch(SUBSCRIBE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'dossier-site' })
+    })
+    .then(function(r){ return r.json().catch(function(){ return { ok:false }; }); })
+    .then(function(data){
+      if (!data || !data.ok) throw new Error((data && data.error) || 'failed');
+      try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
+      setStatus('Clearance granted — opening file…', 'ok');
+      setTimeout(function(){ window.location.href = 'guide.html'; }, 700);
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = '[ Request clearance ]';
+      setStatus('Transmission failed. Try again in a moment.', 'err');
+    });
+  });
+})();
+</script>
+</body>
+</html>

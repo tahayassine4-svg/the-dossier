@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex">
+<title>File No. 001 // Make your own podcast — THE DOSSIER</title>
+<script>
+// Soft gate: no clearance on file → back to the request page.
+(function(){
+  try {
+    var c = JSON.parse(localStorage.getItem('dossier_clearance'));
+    if (!c || !c.email) window.location.replace('index.html');
+  } catch (e) { window.location.replace('index.html'); }
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/dossier.css">
+</head>
+<body>
+<div class="stage narrow">
+
+  <div class="nav">
+    <a class="logo" href="index.html">The Dossier//</a>
+    <div class="links"><span class="micro">Status: Declassified</span></div>
+  </div>
+
+  <div class="filehead" style="margin:40px 0 16px">
+    <span id="fileDate">20260725</span>
+    <span>File No. 001 // How-to</span>
+  </div>
+
+  <div class="frame" style="padding:56px 32px;text-align:center">
+    <div class="display">make your own podcast on any topic</div>
+    <div style="color:var(--accent-bright);font-weight:700;font-size:clamp(15px,2.6vw,20px);letter-spacing:.18em;text-transform:uppercase;margin-top:10px">(for free)<span class="cursor"></span></div>
+  </div>
+
+  <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
+    <span class="k">Format:</span><span class="v">Two-person audio</span>
+    <span class="k">Time:</span><span class="v">2 to 5 min</span>
+    <span class="k">Cost:</span><span class="v">$0</span>
+  </div>
+
+  <div class="divider">//──────//</div>
+
+  <div id="videoBox" class="frame" style="margin:0 0 40px">
+    <div class="boxhead">
+      <span class="meta">Watch first</span>
+      <span class="micro" style="flex:none">Full walkthrough</span>
+    </div>
+    <div style="position:relative">
+      <video id="video" playsinline src="uploads/tutorial-video.mp4" style="cursor:pointer"></video>
+      <button id="videoBtn" class="btn sm" style="position:absolute;bottom:14px;left:14px;background:var(--ink)">[ Play ]</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="h2">Required assets</div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>two tools. both free. plus 2 to 5 minutes of your time.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin:20px 0">
+        <span class="tag">NotebookLM (Gemini Notebook)</span>
+        <span class="tag">Perplexity</span>
+      </div>
+      <p>you can experiment with a lot of other setups, but this is the easiest one, and it still gives you solid outputs.</p>
+    </div>
+  </section>
+
+  <section style="margin-top:56px">
+    <div class="h2">Step 01 // <span style="color:var(--phosphor)">pick your topic (and be greedy)</span></div>
+    <hr class="rule">
+    <div class="frame" style="padding:24px 28px;margin-top:24px">
+      <div class="meta" style="margin-bottom:12px">// be creative</div>
+      <p style="margin:0">its YOUR podcast. it can be any cross of topics. physics and finance. ai and philosophy. whatever your heart desires. so dont be shy to connect videos and topics that dont usually sit next to each other. thats where the interesting stuff is.</p>
+    </div>
+  </section>
+
+  <section style="margin-top:56px">
+    <div class="h2">Step 02 // <span style="color:var(--phosphor)">find your sources with Perplexity</span></div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>go to Perplexity and run the prompt below. it gives you the best videos on your topic, plus the key subtopics in learning order, plus a clean list of urls at the end.</p>
+      <p>you have two ways to do this:</p>
+      <div class="filerow" style="border-top:1px solid var(--line-dim)">
+        <span class="no">01</span>
+        <div class="body"><p>use your own favourite videos and sources for the topic, by hand.</p></div>
+      </div>
+      <div class="filerow">
+        <span class="no">02</span>
+        <div class="body"><p>use the videos Perplexity gives you, keep the ones you like, and enrich them with deep-researched sources in NotebookLM.</p></div>
+      </div>
+      <p style="margin-top:24px">if youre looking for a specific tone or style, option 1 is better.</p>
+    </div>
+
+    <div class="frame" style="padding:24px 28px;margin:24px 0">
+      <div class="meta" style="margin-bottom:12px">// why youtube?</div>
+      <p style="margin:0 0 12px">two reasons.</p>
+      <p style="margin:0 0 12px">most good videos have a script behind them to make the topic more interesting, which tends to increase how much you actually retain. (might be biased, but it holds up for me.)</p>
+      <p style="margin:0">and someone already did the research for you, in a style you comprehend. so it feels less like a lecture and more like chatting with that person.</p>
+    </div>
+
+    <div class="frame" style="margin:32px 0">
+      <div class="boxhead">
+        <span class="meta">Perplexity source finder</span>
+        <button id="copy1" class="btn sm" style="flex:none">[ Copy ]</button>
+      </div>
+      <pre class="prompt" id="prompt1"></pre>
+    </div>
+
+    <p>this one prompt already gives you everything you need for a good foundational podcast. copy all the urls at the bottom and paste them into the website / url upload in NotebookLM. it handles the rest.</p>
+  </section>
+
+  <section style="margin-top:56px">
+    <div class="h2">Step 03 // <span style="color:var(--phosphor)">load your sources into NotebookLM</span></div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>paste your urls into NotebookLM as sources.</p>
+      <p>then set the audio format to a two-person discussion (Audio Overview), and paste the prompt below into the instructions field. leave it on analysis or experiment mode.</p>
+    </div>
+
+    <div class="frame" style="margin:24px 0">
+      <div class="boxhead">
+        <span class="meta">NotebookLM podcast producer</span>
+        <button id="copy3" class="btn sm" style="flex:none">[ Copy ]</button>
+      </div>
+      <pre class="prompt" id="prompt3"></pre>
+    </div>
+  </section>
+
+  <section style="margin-top:56px">
+    <div class="h2">Step 04 // <span style="color:var(--phosphor)">let it run</span></div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>this takes a couple of minutes. just go do something else, it runs in the background. come back and your podcast is waiting.</p>
+    </div>
+    <div class="frame" style="padding:24px 28px;margin-top:24px">
+      <div class="meta" style="margin-bottom:12px">// bonus tip</div>
+      <p style="margin:0">download the NotebookLM app on your phone. you can listen to your podcast on the go, no downloading needed.</p>
+    </div>
+  </section>
+
+  <div class="divider">//──────//</div>
+
+  <section id="audioProof">
+    <div class="h2">Proof // <span style="color:var(--phosphor)">this actually works</span></div>
+    <hr class="rule">
+    <p style="margin-top:24px">this is what came out when i used this exact system to build a podcast on the history of money.</p>
+    <div class="frame dim" style="padding:24px 28px;margin-top:20px">
+      <div class="micro" style="margin-bottom:14px">Audio overview</div>
+      <div style="color:var(--phosphor);font-size:15px;margin-bottom:20px">&quot;How We Invented Money to Keep Score — made with this exact method. (3-min clip)&quot;</div>
+      <audio id="audio" src="uploads/podcast-episode.mp3" style="display:none"></audio>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <button id="playBtn" class="btn sm" style="flex:none">[ Play ]</button>
+        <div id="progress" style="flex:1;min-width:140px;height:2px;background:var(--line-dim);position:relative;cursor:pointer;margin:12px 0">
+          <div id="progressFill" style="position:absolute;top:0;left:0;height:100%;background:var(--accent);width:0%"></div>
+          <div id="progressHandle" style="position:absolute;top:50%;left:0%;width:4px;height:14px;background:var(--accent-bright);transform:translate(-50%,-50%);cursor:grab"></div>
+        </div>
+        <span id="timeLabel" class="micro" style="flex:none">0:00 / 0:00</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-top:64px">
+    <div class="h2">Why this is a Human OS move</div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>the default is to consume whatever the feed hands you. this flips it. you decide the topic, you pick the sources, you make the thing that didnt exist yet.</p>
+      <p>let me know on x how you like this system.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span class="micro">End of file // The Dossier//</span>
+    <span class="micro">Forward at your discretion</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var d = new Date();
+  document.getElementById('fileDate').textContent =
+    d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+
+  /* ---- copy-paste prompts ---- */
+  var prompt1 = 'Find the best YouTube videos on [TOPIC].\n\nKeep the answer short.\n\nUse a table for the video recommendations.\nInclude these columns:\n- Title\n- Channel\n- One-line reason\n- Full YouTube URL\n\nRecommend 5–10 videos.\nPrioritize clarity, depth, credibility, and usefulness.\nAvoid clickbait, fluff, and duplicates.\n\nThen list the key subtopics for [TOPIC] in learning order.\n\nEnd with:\n- all URLs only\n- one URL per line\n- no extra words\n\nOptional Gemini deep research prompt:\n[TOPIC] — main ideas, key debates, and what to look for.';
+
+  var prompt3 = 'Role & Objective:\nYou are acting as the executive producer and lead host of an engaging, high-retention audio podcast. Your goal is to synthesize the uploaded sources and research notes into a master script/guideline for a dynamic, deep-dive two-person discussion format (Audio Overview).\n\nTone & Style:\n- Conversational, sharp, accessible, and deeply intellectual yet easy to follow.\n- Avoid academic dryness or monotone listing of facts. Treat the listener like a curious peer exploring a fascinating rabbit hole.\n- Use natural dialogue cues, relatable analogies, and smooth transitions between complex subtopics.\n\nCore Instructions:\n1. Grounding: Rely strictly on the provided URLs, videos, and research text. Do not invent facts.\n2. Structure: Follow a logical learning curve from foundational concepts to nuanced debates, key takeaways, and practical applications.\n3. Interactivity (Two-Host Dynamic): Frame the discussion for two co-hosts who build off each other, one driving the core narrative and asking the "dumb questions" to clarify concepts, and the other providing deeper insights, context, and counter-arguments from the sources.\n4. Creativity: Highlight any unique cross-disciplinary connections present in the material (e.g., blending distinct domains if applicable).\n\nOutput:\nGenerate a comprehensive, engaging master discussion blueprint that prepares the AI audio generation engine to produce an immersive, natural-sounding podcast episode.';
+
+  document.getElementById('prompt1').textContent = prompt1;
+  document.getElementById('prompt3').textContent = prompt3;
+
+  function wireCopy(btnId, text){
+    var btn = document.getElementById(btnId), t;
+    btn.addEventListener('click', function(){
+      function fallback(){
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(fallback);
+      } else { fallback(); }
+      clearTimeout(t);
+      btn.textContent = '[ Copied ]';
+      t = setTimeout(function(){ btn.textContent = '[ Copy ]'; }, 1600);
+    });
+  }
+  wireCopy('copy1', prompt1);
+  wireCopy('copy3', prompt3);
+
+  /* ---- walkthrough video (hides itself if the file isn't there) ---- */
+  var video = document.getElementById('video');
+  var videoBtn = document.getElementById('videoBtn');
+  function toggleVideo(){ if (video.paused) video.play(); else video.pause(); }
+  video.addEventListener('click', toggleVideo);
+  videoBtn.addEventListener('click', toggleVideo);
+  video.addEventListener('play',  function(){ videoBtn.textContent = '[ Pause ]'; });
+  video.addEventListener('pause', function(){ videoBtn.textContent = '[ Play ]'; });
+  video.addEventListener('ended', function(){ videoBtn.textContent = '[ Play ]'; });
+  video.addEventListener('error', function(){ document.getElementById('videoBox').style.display = 'none'; });
+
+  /* ---- audio proof player ---- */
+  var audio = document.getElementById('audio');
+  var playBtn = document.getElementById('playBtn');
+  var progress = document.getElementById('progress');
+  var fill = document.getElementById('progressFill');
+  var handle = document.getElementById('progressHandle');
+  var timeLabel = document.getElementById('timeLabel');
+  var dragging = false;
+
+  function fmt(t){
+    if (!isFinite(t)) return '0:00';
+    var m = Math.floor(t/60), s = Math.floor(t%60);
+    return m + ':' + String(s).padStart(2,'0');
+  }
+  function render(){
+    var pct = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
+    fill.style.width = pct + '%';
+    handle.style.left = pct + '%';
+    timeLabel.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration || 0);
+  }
+  playBtn.addEventListener('click', function(){ if (audio.paused) audio.play(); else audio.pause(); });
+  audio.addEventListener('play',  function(){ playBtn.textContent = '[ Pause ]'; });
+  audio.addEventListener('pause', function(){ playBtn.textContent = '[ Play ]'; });
+  audio.addEventListener('ended', function(){ playBtn.textContent = '[ Play ]'; });
+  audio.addEventListener('timeupdate', render);
+  audio.addEventListener('loadedmetadata', render);
+  audio.addEventListener('error', function(){ document.getElementById('audioProof').style.display = 'none'; });
+
+  function seekTo(clientX){
+    if (!audio.duration) return;
+    var rect = progress.getBoundingClientRect();
+    var ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    audio.currentTime = ratio * audio.duration;
+    render();
+  }
+  progress.addEventListener('click', function(e){ seekTo(e.clientX); });
+  function startDrag(e){ e.stopPropagation(); e.preventDefault(); dragging = true; }
+  handle.addEventListener('mousedown', startDrag);
+  handle.addEventListener('touchstart', startDrag, { passive:false });
+  document.addEventListener('mousemove', function(e){ if (dragging) seekTo(e.clientX); });
+  document.addEventListener('touchmove', function(e){ if (dragging) seekTo(e.touches[0].clientX); }, { passive:false });
+  document.addEventListener('mouseup',  function(){ dragging = false; });
+  document.addEventListener('touchend', function(){ dragging = false; });
+})();
+</script>
+</body>
+</html>

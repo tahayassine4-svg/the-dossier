@@ -39,6 +39,24 @@
     <span class="k">Cost:</span><span class="v">$0</span>
   </div>
 
+  <div id="signup" class="frame" style="padding:28px;margin:40px 0 0">
+    <div class="meta" style="margin-bottom:6px">Get the next file</div>
+    <p style="margin:0 0 20px;color:var(--muted)">this file stays open — no email needed. drop it below only if you want file no. 002 when it drops.</p>
+    <form id="signupForm" class="capture" novalidate>
+      <label class="lab" for="signupEmail" style="width:100%;margin-bottom:0">Secure channel</label>
+      <input id="signupEmail" name="email" class="input" type="email" required
+             placeholder="name@domain.com" autocomplete="email" spellcheck="false">
+      <button id="signupBtn" type="submit" class="btn solid">[ Add me ]</button>
+    </form>
+    <div id="signupStatus" class="status micro">No spam. Declassify (unsubscribe) any time.</div>
+  </div>
+
+  <div id="signupOnFile" class="frame dim" style="display:none;padding:14px 20px;margin:40px 0 0;
+       justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <span class="meta">On the list — <span id="signupOnFileEmail" style="color:var(--phosphor)"></span></span>
+    <span class="micro" style="flex:none">File no. 002 pending</span>
+  </div>
+
   <div class="divider">//──────//</div>
 
   <div id="videoBox" class="frame" style="margin:0 0 40px">
@@ -146,7 +164,7 @@
     <p style="margin-top:24px">this is what came out when i used this exact system to build a podcast on the history of money.</p>
     <div class="frame dim" style="padding:24px 28px;margin-top:20px">
       <div class="micro" style="margin-bottom:14px">Audio overview</div>
-      <div style="color:var(--phosphor);font-size:15px;margin-bottom:20px">&quot;How We Invented Money to Keep Score — made with this exact method. (3-min clip)&quot;</div>
+      <div style="color:var(--phosphor);font-size:15px;margin-bottom:20px">&quot;How We Invented Money to Keep Score — made with this exact method.&quot;</div>
       <audio id="audio" src="uploads/podcast-episode.mp3" style="display:none"></audio>
       <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
         <button id="playBtn" class="btn sm" style="flex:none">[ Play ]</button>
@@ -180,6 +198,69 @@
   var d = new Date();
   document.getElementById('fileDate').textContent =
     d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+
+  /* ---- signup ---- */
+  // Same Formspree form as the landing page, and the same localStorage key,
+  // so someone who signed up there isn't asked twice. Nothing here is
+  // redirecting, so unlike the landing page this can wait for the real
+  // response and report an actual failure instead of guessing.
+  (function(){
+    var KEY = 'dossier_clearance';
+    var SUBSCRIBE_ENDPOINT = 'https://formspree.io/f/xjgnplqz';
+
+    var box    = document.getElementById('signup');
+    var onFile = document.getElementById('signupOnFile');
+    var form   = document.getElementById('signupForm');
+    var input  = document.getElementById('signupEmail');
+    var btn    = document.getElementById('signupBtn');
+    var status = document.getElementById('signupStatus');
+
+    function setStatus(msg, kind){
+      status.textContent = msg;
+      status.className = 'status micro' + (kind ? ' ' + kind : '');
+    }
+
+    function showOnFile(email){
+      box.style.display = 'none';
+      onFile.style.display = 'flex';
+      document.getElementById('signupOnFileEmail').textContent = email;
+    }
+
+    var existing = null;
+    try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
+    if (existing && existing.email) showOnFile(existing.email);
+
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var email = input.value.trim();
+      if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
+        setStatus('Invalid channel — check the address.', 'err');
+        input.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '[ Transmitting… ]';
+      setStatus('Adding to the list…');
+
+      fetch(SUBSCRIBE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, source: 'dossier-guide', ref: document.referrer || '' })
+      })
+      .then(function(r){
+        if (!r.ok) throw new Error('rejected');
+        try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
+        setStatus('On the list — file no. 002 will find you.', 'ok');
+        setTimeout(function(){ showOnFile(email); }, 1400);
+      })
+      .catch(function(){
+        btn.disabled = false;
+        btn.textContent = '[ Add me ]';
+        setStatus('Transmission failed. Try again in a moment.', 'err');
+      });
+    });
+  })();
 
   /* ---- copy-paste prompts ---- */
   var prompt1 = 'Find the best YouTube videos on [TOPIC].\n\nKeep the answer short.\n\nUse a table for the video recommendations.\nInclude these columns:\n- Title\n- Channel\n- One-line reason\n- Full YouTube URL\n\nRecommend 5–10 videos.\nPrioritize clarity, depth, credibility, and usefulness.\nAvoid clickbait, fluff, and duplicates.\n\nThen list the key subtopics for [TOPIC] in learning order.\n\nEnd with:\n- all URLs only\n- one URL per line\n- no extra words\n\nOptional Gemini deep research prompt:\n[TOPIC] — main ideas, key debates, and what to look for.';

@@ -122,11 +122,9 @@
 (function(){
   var KEY = 'dossier_clearance';
 
-  // Formspree form URL, e.g. https://formspree.io/f/abcdwxyz — create the
-  // form at formspree.io, then paste its endpoint here. Left null, the gate
-  // still works; the address just isn't recorded anywhere. Recording never
-  // blocks the reader.
-  var SUBSCRIBE_ENDPOINT = null;
+  // Formspree form "The Dossier Signups". Set to null to stop recording;
+  // the gate still works either way. Recording never blocks the reader.
+  var SUBSCRIBE_ENDPOINT = 'https://formspree.io/f/xjgnplqz';
 
   var d = new Date();
   var code = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');

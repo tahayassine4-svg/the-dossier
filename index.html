@@ -122,11 +122,10 @@
 (function(){
   var KEY = 'dossier_clearance';
 
-  // Optional subscribe endpoint. Leave null and the gate runs client-side:
-  // the address is kept in localStorage and the file opens immediately.
-  // To start collecting addresses, set this to a full external URL that
-  // sends CORS headers for the Pages origin — a failed post no longer
-  // blocks the reader, it just means that address wasn't recorded.
+  // Google Apps Script web app URL — see google-sheet-collector.gs for the
+  // script and deploy steps. Paste the /exec URL here to start writing
+  // addresses to the sheet. Left null, the gate still works; the address
+  // just isn't recorded anywhere. Recording never blocks the reader.
   var SUBSCRIBE_ENDPOINT = null;
 
   var d = new Date();
@@ -142,6 +141,34 @@
   function setStatus(msg, kind){
     status.textContent = msg;
     status.className = 'status micro' + (kind ? ' ' + kind : '');
+  }
+
+  // Fire-and-forget. text/plain keeps this a "simple" request, so the
+  // browser skips the CORS preflight an Apps Script web app can't answer,
+  // and sendBeacon lets the post outlive the redirect to the guide. The
+  // response is never read, so a failure here is silent by design.
+  function record(email){
+    if (!SUBSCRIBE_ENDPOINT) return;
+    var payload = JSON.stringify({
+      email: email,
+      source: 'dossier-site',
+      ref: document.referrer || '',
+      ts: new Date().toISOString()
+    });
+    try {
+      if (navigator.sendBeacon &&
+          navigator.sendBeacon(SUBSCRIBE_ENDPOINT,
+            new Blob([payload], { type: 'text/plain;charset=UTF-8' }))) return;
+    } catch(e){}
+    try {
+      fetch(SUBSCRIBE_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: payload
+      }).catch(function(){});
+    } catch(e){}
   }
 
   var existing = null;
@@ -171,13 +198,8 @@
       setTimeout(function(){ window.location.href = 'guide.html'; }, 700);
     }
 
-    if (!SUBSCRIBE_ENDPOINT) { grant(); return; }
-
-    fetch(SUBSCRIBE_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, source: 'dossier-site' })
-    }).catch(function(){}).then(grant);
+    record(email);
+    grant();
   });
 })();
 </script>

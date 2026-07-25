@@ -122,9 +122,12 @@
 (function(){
   var KEY = 'dossier_clearance';
 
-  // Subscribe endpoint. GitHub Pages is static, so this must be a full
-  // external URL with CORS enabled for the Pages origin.
-  var SUBSCRIBE_ENDPOINT = '/api/subscribe';
+  // Optional subscribe endpoint. Leave null and the gate runs client-side:
+  // the address is kept in localStorage and the file opens immediately.
+  // To start collecting addresses, set this to a full external URL that
+  // sends CORS headers for the Pages origin — a failed post no longer
+  // blocks the reader, it just means that address wasn't recorded.
+  var SUBSCRIBE_ENDPOINT = null;
 
   var d = new Date();
   var code = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
@@ -162,23 +165,19 @@
     btn.textContent = '[ Transmitting… ]';
     setStatus('Verifying clearance…');
 
+    function grant(){
+      try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
+      setStatus('Clearance granted — opening file…', 'ok');
+      setTimeout(function(){ window.location.href = 'guide.html'; }, 700);
+    }
+
+    if (!SUBSCRIBE_ENDPOINT) { grant(); return; }
+
     fetch(SUBSCRIBE_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email, source: 'dossier-site' })
-    })
-    .then(function(r){ return r.json().catch(function(){ return { ok:false }; }); })
-    .then(function(data){
-      if (!data || !data.ok) throw new Error((data && data.error) || 'failed');
-      try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
-      setStatus('Clearance granted — opening file…', 'ok');
-      setTimeout(function(){ window.location.href = 'guide.html'; }, 700);
-    })
-    .catch(function(){
-      btn.disabled = false;
-      btn.textContent = '[ Request clearance ]';
-      setStatus('Transmission failed. Try again in a moment.', 'err');
-    });
+    }).catch(function(){}).then(grant);
   });
 })();
 </script>

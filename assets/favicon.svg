@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- The // brand glyph, drawn as geometry so it needs no font. -->
+  <rect width="64" height="64" fill="#090909"/>
+  <path d="M16 48 L26 16 L33 16 L23 48 Z" fill="#45C733"/>
+  <path d="M31 48 L41 16 L48 16 L38 48 Z" fill="#45C733"/>
+</svg>

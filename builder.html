@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex,nofollow">
-<title>File builder // THE DOSSIER</title>
+<title>Builder // THE DOSSIER</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -291,6 +293,9 @@
   'use strict';
 
   var REPO   = { owner: 'tahayassine4-svg', repo: 'the-dossier', branch: 'main' };
+  // Social cards need absolute urls, so the published site's address is fixed
+  // here rather than derived from wherever the builder happens to be open.
+  var SITE   = 'https://tahayassine4-svg.github.io/the-dossier/';
   var LSKEY  = 'dossier_builder_v1';
   var TOKKEY = 'dossier_gh_token';
   var MARKER = '<!-- @files -->';
@@ -771,6 +776,16 @@
       '<meta property="og:title" content="File No. ' + esc(m.no) + ' // ' + esc(m.title) + '">\n' +
       '<meta property="og:description" content="' + esc(m.desc) + '">\n' +
       '<meta property="og:type" content="article">\n' +
+      '<meta property="og:url" content="' + SITE + (isDraft ? 'drafts/' : '') + esc(slug()) + '">\n' +
+      '<meta property="og:site_name" content="THE DOSSIER">\n' +
+      '<meta property="og:image" content="' + SITE + 'assets/og-cover.png">\n' +
+      '<meta property="og:image:width" content="1200">\n' +
+      '<meta property="og:image:height" content="630">\n' +
+      '<meta name="twitter:card" content="summary_large_image">\n' +
+      '<meta name="twitter:image" content="' + SITE + 'assets/og-cover.png">\n' +
+      '<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">\n' +
+      '<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">\n' +
+      '<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">\n' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
       '<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">\n' +

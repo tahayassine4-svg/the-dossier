@@ -91,6 +91,17 @@
          text-transform:uppercase;font-weight:400;margin-bottom:5px}
   .kit span{display:block;color:var(--muted);font-size:11px;line-height:17px}
 
+  /* Library row, lifted from library.html so the preview is the real thing. */
+  .row{display:flex;gap:20px;padding:20px 0;border-top:1px solid var(--line-dim);
+       border-bottom:1px solid var(--line-dim)}
+  .row .no{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.12em;flex:none;min-width:3.2em}
+  .row .body{flex:1;min-width:0}
+  .row .ttl{color:var(--phosphor);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+  .row .ttl a{color:inherit}
+  .row .sub{margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;align-items:baseline}
+  .row .note{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:22px;max-width:60ch}
+  .row .out{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+
   pre.out{white-space:pre-wrap;word-break:break-all;max-height:280px;overflow:auto;
           border:1px solid var(--line-dim);padding:14px;font-size:11px;line-height:18px;
           color:var(--muted);font-family:var(--font-mono);margin:14px 0 0}
@@ -108,11 +119,52 @@
   <div class="side">
     <section>
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px">
-        <span class="logo" style="color:var(--accent);font-weight:700;font-size:15px;letter-spacing:.1em;text-transform:uppercase">File builder//</span>
-        <a class="micro" href="archive.html">Archive →</a>
+        <span class="logo" style="color:var(--accent);font-weight:700;font-size:15px;letter-spacing:.1em;text-transform:uppercase">Builder//</span>
+        <a class="micro" href="home.html">Site →</a>
+      </div>
+      <div class="picks" style="margin-bottom:12px">
+        <button class="pick" data-mode="file" aria-pressed="true">Files</button>
+        <button class="pick" data-mode="lib" aria-pressed="false">Library</button>
       </div>
       <div class="micro" data-save style="color:var(--line-dim)">Saved locally</div>
     </section>
+
+    <div data-when="lib" style="display:none">
+      <section>
+        <h3>The source</h3>
+        <div class="field"><label>Title</label><input data-src="title" placeholder="The Almanack of Naval Ravikant"></div>
+        <div class="field"><label>Link</label><input data-src="url" placeholder="https://www.navalmanack.com/"></div>
+        <div class="field"><label>Origin</label><input data-src="origin" placeholder="Naval Ravikant, compiled by Eric Jorgenson"></div>
+        <div class="field">
+          <label>Kind</label>
+          <select data-src="kind">
+            <option>Book</option><option>Essay</option><option>Paper</option>
+            <option>Podcast</option><option>Video</option><option>Course</option>
+            <option>Newsletter</option><option>Talk</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Cost</label>
+          <select data-src="cost">
+            <option value="Free">Free</option>
+            <option value="Paid">Paid</option>
+            <option value="">Do not say</option>
+          </select>
+        </div>
+        <div class="field"><label>Note</label><textarea data-src="note" rows="4" placeholder="what it is, in one or two lines."></textarea></div>
+        <div class="field"><label>Number</label><input data-src="no" placeholder="002"></div>
+        <p class="note" data-srccount>Reading the library…</p>
+      </section>
+
+      <section>
+        <h3>Add it</h3>
+        <button class="act solid" data-addsource>[ Add to the library ]</button>
+        <button class="act" data-srcrow>[ Copy the row ]</button>
+        <p class="note" data-srcnote></p>
+      </section>
+    </div>
+
+    <div data-when="file">
 
     <section>
       <h3>The file</h3>
@@ -161,6 +213,8 @@
       <p class="note" data-pubnote></p>
     </section>
 
+    </div><!-- /data-when=file -->
+
     <section>
       <h3>GitHub token</h3>
       <div class="field">
@@ -174,7 +228,22 @@
   </div>
 
   <div class="work">
-    <div class="canvas">
+
+    <!-- Library mode: the row is previewed inside the real library chrome,
+         with the same list styles the page itself uses. -->
+    <div class="canvas" data-when="lib" style="display:none">
+      <div class="nav">
+        <span class="logo">The Dossier//</span>
+        <div class="links"><span class="micro">The library</span></div>
+      </div>
+      <div class="filehead" style="margin:40px 0 24px">
+        <span>The library</span>
+        <span><span data-libcount>000</span> sources on record</span>
+      </div>
+      <div data-librow></div>
+    </div>
+
+    <div class="canvas" data-when="file">
       <div class="nav">
         <span class="logo">The Dossier//</span>
         <div class="links"><span class="micro">Status: Declassified</span></div>
@@ -924,6 +993,143 @@
       });
   });
 
+  /* ============================================================
+     LIBRARY MODE
+     A source is a fixed record, so it takes a form rather than the
+     block canvas. It shares this tool's token and API layer.
+     ============================================================ */
+  var SRCKEY = 'dossier_source_v1';
+  var SRCMARK = '<!-- @sources -->';
+
+  var src = (function(){
+    try { return JSON.parse(localStorage.getItem(SRCKEY)) || null; } catch(e){ return null; }
+  })() || { title:'', url:'', origin:'', kind:'Book', cost:'Free', note:'', no:'' };
+
+  function saveSrc(){
+    try { localStorage.setItem(SRCKEY, JSON.stringify(src)); } catch(e){}
+  }
+
+  function domain(u){
+    try { return new URL(u).hostname.replace(/^www\./,''); } catch(e){ return ''; }
+  }
+
+  function sourceRow(){
+    var meta = [src.kind, src.cost].filter(Boolean).join(' · ');
+    var d = domain(src.url);
+    return '    <div class="row" data-source>\n' +
+      '      <span class="no">' + esc(src.no) + '</span>\n' +
+      '      <div class="body">\n' +
+      '        <div class="ttl">\n' +
+      '          <a href="' + esc(src.url) + '" target="_blank" rel="noopener">' + esc(src.title) + '</a>\n' +
+      '        </div>\n' +
+      '        <div class="sub">\n' +
+      '          <span class="micro">' + esc(meta) + '</span>\n' +
+      '          <span class="micro" style="color:var(--line-dim)">//</span>\n' +
+      '          <span class="micro">' + esc(src.origin) + '</span>\n' +
+      '        </div>\n' +
+      (src.note ? '        <p class="note">' + esc(src.note) + '</p>\n' : '') +
+      (d ? '        <div style="margin-top:10px">\n' +
+           '          <a class="out" href="' + esc(src.url) + '" target="_blank" rel="noopener">' + esc(d) + ' →</a>\n' +
+           '        </div>\n' : '') +
+      '      </div>\n' +
+      '    </div>\n';
+  }
+
+  function drawSource(){
+    el('[data-librow]').innerHTML = sourceRow();
+  }
+
+  els('[data-src]').forEach(function(input){
+    var k = input.getAttribute('data-src');
+    input.value = src[k] || '';
+    input.addEventListener('input', function(){ src[k] = input.value; saveSrc(); drawSource(); });
+    input.addEventListener('change', function(){ src[k] = input.value; saveSrc(); drawSource(); });
+  });
+
+  // The next number comes from the library itself, so two sources cannot
+  // end up sharing one.
+  function readLibrary(){
+    return fetch('library.html', { cache:'no-store' })
+      .then(function(r){ return r.text(); })
+      .then(function(html){
+        var d = new DOMParser().parseFromString(html, 'text/html');
+        var n = d.querySelectorAll('[data-source]').length;
+        el('[data-libcount]').textContent = String(n).padStart(3,'0');
+        el('[data-srccount]').textContent = n + ' source' + (n === 1 ? '' : 's') + ' on record. Next number is ' +
+          String(n + 1).padStart(3,'0') + '.';
+        if (!src.no) {
+          src.no = String(n + 1).padStart(3,'0');
+          el('[data-src="no"]').value = src.no;
+          saveSrc(); drawSource();
+        }
+        return n;
+      })
+      .catch(function(){ el('[data-srccount]').textContent = 'Could not read the library from here.'; });
+  }
+
+  function srcnote(msg, warn){
+    var n = el('[data-srcnote]');
+    n.textContent = msg;
+    n.className = 'note' + (warn ? ' warn' : '');
+  }
+
+  el('[data-srcrow]').addEventListener('click', function(){
+    var t = sourceRow();
+    if (navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){});
+    sheetOut('Library row', 'Paste this straight after the ' + SRCMARK + ' marker in library.html.', t);
+  });
+
+  el('[data-addsource]').addEventListener('click', function(){
+    if (!token())     return srcnote('No token saved. This needs one.', true);
+    if (!src.title)   return srcnote('The source needs a title.', true);
+    if (!src.url)     return srcnote('The source needs a link.', true);
+    if (!domain(src.url)) return srcnote('That link is not a full url.', true);
+    if (!src.no)      return srcnote('The source needs a number.', true);
+
+    var btn = el('[data-addsource]');
+    btn.disabled = true;
+    srcnote('Adding…');
+
+    getFile('library.html')
+      .then(function(lib){
+        var html = unb64(lib.content);
+        if (html.indexOf('href="' + src.url + '"') > -1) throw new Error('that link is already in the library');
+        if (html.indexOf(SRCMARK) === -1) throw new Error('library marker missing');
+        html = html.replace(SRCMARK, SRCMARK + '\n\n' + sourceRow());
+        return put('library.html', html, 'Add ' + src.title + ' to the library', lib.sha);
+      })
+      .then(function(){
+        srcnote('Added. GitHub Pages takes about a minute to build.');
+        btn.disabled = false;
+        // Clear for the next one, keeping nothing but the running number.
+        src = { title:'', url:'', origin:'', kind:src.kind, cost:src.cost, note:'', no:'' };
+        saveSrc();
+        els('[data-src]').forEach(function(i){ i.value = src[i.getAttribute('data-src')] || ''; });
+        drawSource();
+        readLibrary();
+      })
+      .catch(function(err){
+        srcnote('Failed: ' + err.message, true);
+        btn.disabled = false;
+      });
+  });
+
+  /* ---- mode ---- */
+  function setMode(mode){
+    els('[data-mode]').forEach(function(b){
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode));
+    });
+    els('[data-when]').forEach(function(n){
+      n.style.display = n.getAttribute('data-when') === mode ? '' : 'none';
+    });
+    el('[data-add]').style.display = mode === 'file' ? '' : 'none';
+    if (mode === 'lib') { drawSource(); readLibrary(); }
+    try { localStorage.setItem('dossier_builder_mode', mode); } catch(e){}
+  }
+  els('[data-mode]').forEach(function(b){
+    b.addEventListener('click', function(){ setMode(b.getAttribute('data-mode')); });
+  });
+
   /* ---- boot ---- */
   function mount(){
     els('[data-meta]').forEach(function(i){ i.value = doc.meta[i.getAttribute('data-meta')] || ''; });
@@ -933,6 +1139,12 @@
   }
   mount();
   listDrafts();
+
+  var startMode = 'file';
+  try { startMode = localStorage.getItem('dossier_builder_mode') || 'file'; } catch(e){}
+  if (location.hash === '#library') startMode = 'lib';
+  if (location.hash === '#files')   startMode = 'file';
+  setMode(startMode);
 })();
 </script>
 </body>

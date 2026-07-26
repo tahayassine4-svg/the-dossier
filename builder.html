@@ -224,7 +224,9 @@
         <input data-token type="password" placeholder="github_pat_…" autocomplete="off">
       </div>
       <button class="act" data-savetoken>[ Save token to this browser ]</button>
+      <button class="act" data-testtoken>[ Test the token ]</button>
       <button class="act" data-cleartoken>[ Forget token ]</button>
+      <p class="note" data-toknote></p>
       <p class="note">Stored only in this browser, never in the repo. Publishing is gated by this token, so the builder is inert for anyone else.</p>
     </section>
   </div>
@@ -863,6 +865,88 @@
     n.className = 'note' + (warn ? ' warn' : '');
   }
 
+  function toknote(msg, warn){
+    var n = el('[data-toknote]');
+    n.textContent = msg;
+    n.className = 'note' + (warn ? ' warn' : '');
+  }
+
+  // GitHub's permission errors do not say what to change. Point at the check
+  // that does instead of repeating the sentence.
+  function explain(msg){
+    if (/not accessible by personal access token|Resource not accessible/i.test(msg))
+      return 'GitHub refused the token. Run [ Test the token ] below, it names the missing permission.';
+    if (/Bad credentials/i.test(msg))
+      return 'The token is invalid or expired. Generate a new one and save it again.';
+    return msg;
+  }
+
+  /* ---- token diagnosis ----
+     GitHub answers a token it dislikes with one opaque sentence, which does
+     not say whether the problem is the token, the repository it can see, or
+     the permission level. This walks the three in order and names the one
+     that actually failed. The write check creates a throwaway file and
+     removes it again, so no real file is ever put at risk. */
+  var PROBE = '.builder-permission-check';
+
+  el('[data-testtoken]').addEventListener('click', function(){
+    if (!token()) return toknote('No token saved yet.', true);
+
+    var btn = el('[data-testtoken]');
+    btn.disabled = true;
+    toknote('Checking…');
+
+    var where = REPO.owner + '/' + REPO.repo;
+
+    gh('')
+      .then(function(r){
+        if (r.status === 401)
+          throw new Error('Step 1: the token is invalid or expired. Generate a new one.');
+        if (r.status === 404)
+          throw new Error('Step 1: the token cannot see ' + where + '. Under Repository access, ' +
+                          'pick "Only select repositories" and tick the-dossier. Also check the token ' +
+                          'was created on the ' + REPO.owner + ' account, not a second GitHub account.');
+        if (!r.ok) throw new Error('Step 1: GitHub answered ' + r.status + '.');
+        return gh('/contents/archive.html?ref=' + REPO.branch);
+      })
+      .then(function(r){
+        if (r.status === 403)
+          throw new Error('Step 2: the token reaches the repo but cannot read files. ' +
+                          'Set Repository permissions > Contents to "Read and write".');
+        if (!r.ok) throw new Error('Step 2: GitHub answered ' + r.status + ' reading archive.html.');
+        // Create a throwaway file: the only honest test of write access.
+        return gh('/contents/' + PROBE, {
+          method: 'PUT',
+          body: JSON.stringify({
+            message: 'Builder permission check',
+            content: b64('ok\n'),
+            branch: REPO.branch
+          })
+        });
+      })
+      .then(function(r){
+        if (r.status === 403 || r.status === 404)
+          throw new Error('Step 3: the token can read but not write. ' +
+                          'Set Repository permissions > Contents to "Read and write" ' +
+                          '(read alone is not enough), then regenerate or update the token.');
+        if (!r.ok) throw new Error('Step 3: GitHub answered ' + r.status + ' on the write check.');
+        return r.json();
+      })
+      .then(function(j){
+        // Clean up after ourselves.
+        return del(PROBE, j.content.sha, 'Remove builder permission check');
+      })
+      .then(function(){
+        toknote('Token works. It can read and write ' + where + '. Publishing will go through.');
+        btn.disabled = false;
+        listDrafts();
+      })
+      .catch(function(err){
+        toknote(err.message, true);
+        btn.disabled = false;
+      });
+  });
+
   /* ---- publish ---- */
   function gh(path, opts){
     opts = opts || {};
@@ -956,7 +1040,7 @@
         listDrafts();
       })
       .catch(function(err){
-        pubnote('Draft failed: ' + err.message, true);
+        pubnote(explain(err.message), true);
         btn.disabled = false;
       });
   });
@@ -1003,7 +1087,7 @@
         listDrafts();
       })
       .catch(function(err){
-        pubnote(err.message === 'cancelled' ? 'Cancelled.' : ('Failed: ' + err.message), true);
+        pubnote(err.message === 'cancelled' ? 'Cancelled.' : explain(err.message), true);
         btn.disabled = false;
       });
   });
@@ -1124,7 +1208,7 @@
         readLibrary();
       })
       .catch(function(err){
-        srcnote('Failed: ' + err.message, true);
+        srcnote(explain(err.message), true);
         btn.disabled = false;
       });
   });

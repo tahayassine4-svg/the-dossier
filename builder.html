@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex,nofollow">
+<title>File builder // THE DOSSIER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/dossier.css">
+<style>
+  /* Builder chrome. Everything inside .canvas is the real file, styled by
+     dossier.css alone, so what is on screen is what gets published. */
+  body{overflow-x:hidden}
+  .app{display:flex;min-height:100vh;align-items:flex-start}
+
+  .side{position:sticky;top:0;flex:none;width:340px;height:100vh;overflow-y:auto;
+        border-right:1px solid var(--line-dim);padding:20px}
+  .work{flex:1;min-width:0;padding:0 0 120px}
+
+  .side h3{color:var(--accent);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+           font-weight:400;margin:0 0 10px}
+  .side section{padding:18px 0;border-top:1px solid var(--line-dim)}
+  .side section:first-of-type{border-top:0;padding-top:0}
+
+  .field{margin-bottom:12px}
+  .field label{display:block;color:var(--muted);font-size:11px;letter-spacing:.12em;
+               text-transform:uppercase;margin-bottom:5px}
+  .field input,.field textarea,.field select{width:100%;background:transparent;
+    border:1px solid var(--line-dim);color:var(--phosphor);font-family:var(--font-mono);
+    font-size:13px;line-height:20px;padding:8px 10px;border-radius:0;caret-color:var(--accent-bright)}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent)}
+  .field select option{background:var(--ink)}
+
+  .picks{display:flex;gap:8px;flex-wrap:wrap}
+  .pick{font-family:var(--font-mono);background:transparent;cursor:pointer;border-radius:0;
+        border:1px solid var(--line-dim);color:var(--muted);padding:5px 11px;
+        font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .pick:hover{border-color:var(--accent);color:var(--accent)}
+  .pick[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);
+        color:var(--ink);font-weight:700}
+
+  .act{display:block;width:100%;text-align:left;font-family:var(--font-mono);cursor:pointer;
+       background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:0;
+       padding:11px 14px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .act:hover{border-color:var(--accent-bright);color:var(--accent-bright)}
+  .act.solid{background:var(--accent);color:var(--ink);font-weight:700}
+  .act.solid:hover{background:var(--accent-bright);color:var(--ink)}
+  .act[disabled]{border-color:var(--line-dim);color:var(--line-dim);cursor:not-allowed;background:transparent}
+  .note{color:var(--muted);font-size:11px;line-height:17px;margin:6px 0 0}
+  .note.warn{color:var(--accent-bright)}
+
+  /* Canvas: the file itself, plus a thin edit shell per block. */
+  .canvas{max-width:var(--container-reading);margin:0 auto;padding:56px 32px}
+  .shell{position:relative;border:1px dashed transparent;margin:0 -14px;padding:0 14px}
+  .shell:hover{border-color:var(--line-dim)}
+  .shell.sel{border-color:var(--accent)}
+  .shell.over{border-top:2px solid var(--accent-bright)}
+  .bar{position:absolute;top:-13px;right:10px;display:none;gap:4px;z-index:5}
+  .shell:hover .bar,.shell.sel .bar{display:flex}
+  .bar button{font-family:var(--font-mono);background:var(--ink);border:1px solid var(--line-dim);
+    color:var(--muted);cursor:pointer;font-size:11px;line-height:1;padding:5px 7px;border-radius:0}
+  .bar button:hover{border-color:var(--accent);color:var(--accent)}
+  .grip{cursor:grab}
+  [contenteditable]:focus{outline:1px solid var(--accent);outline-offset:3px}
+  [contenteditable]:empty:before{content:attr(data-ph);color:var(--line-dim)}
+
+  .listctl{display:flex;gap:6px;margin-top:8px}
+  .listctl button{font-family:var(--font-mono);background:transparent;border:1px solid var(--line-dim);
+    color:var(--muted);cursor:pointer;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    padding:4px 9px;border-radius:0}
+  .listctl button:hover{border-color:var(--accent);color:var(--accent)}
+
+  .plus{position:fixed;right:26px;bottom:26px;width:54px;height:54px;border-radius:0;
+        background:var(--accent);color:var(--ink);border:0;font-family:var(--font-mono);
+        font-size:26px;font-weight:700;cursor:pointer;z-index:40;line-height:1}
+  .plus:hover{background:var(--accent-bright)}
+
+  .sheet{position:fixed;inset:0;background:rgba(9,9,9,.92);z-index:50;display:none;
+         overflow-y:auto;padding:40px 20px}
+  .sheet.on{display:block}
+  .sheet .inner{max-width:760px;margin:0 auto;border:1px solid var(--accent);
+                background:var(--ink);padding:28px}
+  .kit{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:18px}
+  .kit button{text-align:left;font-family:var(--font-mono);background:transparent;cursor:pointer;
+    border:1px solid var(--line-dim);color:var(--phosphor);padding:14px;border-radius:0}
+  .kit button:hover{border-color:var(--accent)}
+  .kit b{display:block;color:var(--accent);font-size:12px;letter-spacing:.12em;
+         text-transform:uppercase;font-weight:400;margin-bottom:5px}
+  .kit span{display:block;color:var(--muted);font-size:11px;line-height:17px}
+
+  pre.out{white-space:pre-wrap;word-break:break-all;max-height:280px;overflow:auto;
+          border:1px solid var(--line-dim);padding:14px;font-size:11px;line-height:18px;
+          color:var(--muted);font-family:var(--font-mono);margin:14px 0 0}
+
+  @media(max-width:900px){
+    .app{display:block}
+    .side{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--line-dim)}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="side">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px">
+        <span class="logo" style="color:var(--accent);font-weight:700;font-size:15px;letter-spacing:.1em;text-transform:uppercase">File builder//</span>
+        <a class="micro" href="archive.html">Archive →</a>
+      </div>
+      <div class="micro" data-save style="color:var(--line-dim)">Saved locally</div>
+    </section>
+
+    <section>
+      <h3>The file</h3>
+      <div class="field"><label>Title</label><input data-meta="title" placeholder="Make your own podcast"></div>
+      <div class="field"><label>File no.</label><input data-meta="no" placeholder="002"></div>
+      <div class="field"><label>Kicker</label><input data-meta="kicker" placeholder="How-to"></div>
+      <div class="field"><label>Date code</label><input data-meta="date" placeholder="20260726"></div>
+      <div class="field"><label>Filename</label><input data-meta="slug" placeholder="file-002.html"></div>
+      <div class="field"><label>Description (search + link previews)</label><textarea data-meta="desc" rows="3"></textarea></div>
+      <div class="field">
+        <label>Subject filters</label>
+        <div class="picks" data-tagpicks>
+          <button class="pick" data-tag="self-development" aria-pressed="false">Self-development</button>
+          <button class="pick" data-tag="tools" aria-pressed="false">Tools</button>
+          <button class="pick" data-tag="ai-leverage" aria-pressed="false">AI leverage</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Indexing</label>
+        <select data-meta="robots">
+          <option value="">Listed in search</option>
+          <option value="noindex">Hidden from search (noindex)</option>
+        </select>
+      </div>
+    </section>
+
+    <section>
+      <h3>Drafts</h3>
+      <div class="field"><select data-drafts></select></div>
+      <button class="act" data-new>[ New file ]</button>
+      <button class="act" data-del>[ Delete this draft ]</button>
+    </section>
+
+    <section>
+      <h3>Publish</h3>
+      <button class="act solid" data-publish>[ Publish to the Dossier ]</button>
+      <button class="act" data-download>[ Download the .html ]</button>
+      <button class="act" data-row>[ Copy the archive row ]</button>
+      <p class="note" data-pubnote></p>
+    </section>
+
+    <section>
+      <h3>GitHub token</h3>
+      <div class="field">
+        <label>Fine-grained token, Contents: read and write</label>
+        <input data-token type="password" placeholder="github_pat_…" autocomplete="off">
+      </div>
+      <button class="act" data-savetoken>[ Save token to this browser ]</button>
+      <button class="act" data-cleartoken>[ Forget token ]</button>
+      <p class="note">Stored only in this browser, never in the repo. Publishing is gated by this token, so the builder is inert for anyone else.</p>
+    </section>
+  </div>
+
+  <div class="work">
+    <div class="canvas">
+      <div class="nav">
+        <span class="logo">The Dossier//</span>
+        <div class="links"><span class="micro">Status: Declassified</span></div>
+      </div>
+      <div class="filehead" style="margin:40px 0 16px">
+        <span data-prev="date">20260726</span>
+        <span data-prev="fileline">File No. 002 // How-to</span>
+      </div>
+      <div data-blocks></div>
+      <div class="foot">
+        <span class="micro">The Dossier// End of file</span>
+        <span class="micro">Forward at your discretion</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="plus" data-add title="Add a block">+</button>
+
+<div class="sheet" data-sheet>
+  <div class="inner">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+      <span class="h2">Design assets</span>
+      <button class="pick" data-close>Close</button>
+    </div>
+    <p class="micro" style="margin-top:10px">Every block is the same component the existing files are built from.</p>
+    <div class="kit" data-kit></div>
+  </div>
+</div>
+
+<div class="sheet" data-out>
+  <div class="inner">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+      <span class="h2" data-outtitle>Output</span>
+      <button class="pick" data-close>Close</button>
+    </div>
+    <p class="micro" style="margin-top:10px" data-outnote></p>
+    <pre class="out" data-outbody></pre>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var REPO   = { owner: 'tahayassine4-svg', repo: 'the-dossier', branch: 'main' };
+  var LSKEY  = 'dossier_builder_v1';
+  var TOKKEY = 'dossier_gh_token';
+  var MARKER = '<!-- @files -->';
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function el(sel, root){ return (root||document).querySelector(sel); }
+  function els(sel, root){ return [].slice.call((root||document).querySelectorAll(sel)); }
+
+  /* ============================================================
+     THE KIT
+     Each block renders the exact markup that gets published.
+     [data-f] marks an editable text field; [data-list] marks a
+     repeatable group. The editor decorates those in place, so the
+     canvas is never a separate "preview" that can drift.
+     ============================================================ */
+  var KIT = {
+    hero: {
+      label: 'Hero',
+      hint: 'Display headline in green, with the blinking cursor.',
+      make: function(){ return { title:'make your own podcast on any topic', sub:'(for free)' }; },
+      render: function(p){
+        return '<div class="frame" style="padding:56px 32px;text-align:center">' +
+          '<div class="display" data-f="title" data-ph="headline">' + esc(p.title) + '</div>' +
+          '<div style="color:var(--accent-bright);font-weight:700;font-size:clamp(15px,2.6vw,20px);letter-spacing:.18em;text-transform:uppercase;margin-top:10px">' +
+            '<span data-f="sub" data-ph="subline">' + esc(p.sub) + '</span><span class="cursor"></span>' +
+          '</div></div>';
+      }
+    },
+
+    kv: {
+      label: 'Meta block',
+      hint: 'Key and value rows. Format, time, cost.',
+      make: function(){ return { rows:[{k:'Format:',v:'Two-person audio'},{k:'Time:',v:'2 to 5 min'},{k:'Cost:',v:'$0'}] }; },
+      render: function(p){
+        var rows = p.rows.map(function(r,i){
+          return '<span class="k" data-f="rows.'+i+'.k" data-ph="key">' + esc(r.k) + '</span>' +
+                 '<span class="v" data-f="rows.'+i+'.v" data-ph="value">' + esc(r.v) + '</span>';
+        }).join('');
+        return '<div class="kv" data-list="rows" style="width:max-content;max-width:100%;margin:40px auto 0">' + rows + '</div>';
+      }
+    },
+
+    section: {
+      label: 'Section header',
+      hint: 'Green H2 with the // glyph and a dim rule.',
+      make: function(){ return { title:'Step 01', sub:'pick your topic' }; },
+      render: function(p){
+        return '<div style="margin-top:56px">' +
+          '<div class="h2"><span data-f="title" data-ph="section">' + esc(p.title) + '</span> // ' +
+          '<span style="color:var(--phosphor)" data-f="sub" data-ph="subtitle">' + esc(p.sub) + '</span></div>' +
+          '<hr class="rule"></div>';
+      }
+    },
+
+    text: {
+      label: 'Body copy',
+      hint: 'Paragraphs. The workhorse.',
+      make: function(){ return { paras:['write here.'] }; },
+      render: function(p){
+        var body = p.paras.map(function(t,i){
+          return '<p data-f="paras.'+i+'" data-ph="paragraph">' + esc(t) + '</p>';
+        }).join('');
+        return '<div data-list="paras" style="margin-top:24px">' + body + '</div>';
+      }
+    },
+
+    steps: {
+      label: 'Numbered rows',
+      hint: 'Ruled list with a green number, title and body.',
+      make: function(){ return { items:[{no:'01',ttl:'First thing',body:'what it is.'},{no:'02',ttl:'Second thing',body:'what it is.'}] }; },
+      render: function(p){
+        var rows = p.items.map(function(it,i){
+          return '<div class="filerow"><span class="no" data-f="items.'+i+'.no" data-ph="01">' + esc(it.no) + '</span>' +
+            '<div class="body"><div class="ttl" data-f="items.'+i+'.ttl" data-ph="title">' + esc(it.ttl) + '</div>' +
+            '<p data-f="items.'+i+'.body" data-ph="body">' + esc(it.body) + '</p></div></div>';
+        }).join('');
+        return '<div data-list="items" style="margin-top:24px">' + rows + '</div>';
+      }
+    },
+
+    callout: {
+      label: 'Callout',
+      hint: 'Framed aside with a green label.',
+      make: function(){ return { label:'// be creative', body:'the note that does not belong in the flow.' }; },
+      render: function(p){
+        return '<div class="frame" style="padding:24px 28px;margin:24px 0">' +
+          '<div class="meta" style="margin-bottom:12px" data-f="label" data-ph="// label">' + esc(p.label) + '</div>' +
+          '<p style="margin:0" data-f="body" data-ph="body">' + esc(p.body) + '</p></div>';
+      }
+    },
+
+    prompt: {
+      label: 'Prompt block',
+      hint: 'Copyable text with a working copy button.',
+      make: function(){ return { label:'Perplexity source finder', body:'Paste the prompt here.' }; },
+      render: function(p, id){
+        var pid = 'prompt-' + id;
+        return '<div class="frame" style="margin:32px 0">' +
+          '<div class="boxhead"><span class="meta" data-f="label" data-ph="label">' + esc(p.label) + '</span>' +
+          '<button class="btn sm" style="flex:none" data-copy="' + pid + '">[ Copy ]</button></div>' +
+          '<pre class="prompt" id="' + pid + '" data-f="body" data-ph="prompt text">' + esc(p.body) + '</pre></div>';
+      }
+    },
+
+    tags: {
+      label: 'Tags',
+      hint: 'Outline chips for tools or status.',
+      make: function(){ return { items:[{t:'NotebookLM',d:false},{t:'Perplexity',d:false},{t:'Cost: $0',d:true}] }; },
+      render: function(p){
+        var chips = p.items.map(function(it,i){
+          return '<span class="tag' + (it.d ? ' dim' : '') + '" data-f="items.'+i+'.t" data-ph="tag">' + esc(it.t) + '</span>';
+        }).join('');
+        return '<div data-list="items" style="display:flex;gap:16px;flex-wrap:wrap;margin:20px 0">' + chips + '</div>';
+      }
+    },
+
+    divider: {
+      label: 'Divider',
+      hint: 'The ASCII break.',
+      make: function(){ return {}; },
+      render: function(){ return '<div class="divider">//──────//</div>'; }
+    },
+
+    quote: {
+      label: 'Solid bar',
+      hint: 'The one filled green element. Use once.',
+      make: function(){ return { kicker:'Standing order', line:'the line that has to land' }; },
+      render: function(p){
+        return '<div style="background:var(--accent);color:var(--ink);padding:28px 32px;margin:56px 0">' +
+          '<div style="font-size:11px;line-height:18px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.7" data-f="kicker" data-ph="kicker">' + esc(p.kicker) + '</div>' +
+          '<div style="font-size:clamp(17px,3.2vw,24px);line-height:1.3;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:8px" data-f="line" data-ph="the line">' + esc(p.line) + '</div></div>';
+      }
+    },
+
+    video: {
+      label: 'Video',
+      hint: 'Framed player. Put the file in uploads/ first.',
+      make: function(){ return { src:'uploads/tutorial-video.mp4', label:'Watch first', side:'Full walkthrough' }; },
+      render: function(p){
+        return '<div class="frame" data-video style="margin:32px 0">' +
+          '<div class="boxhead"><span class="meta" data-f="label" data-ph="label">' + esc(p.label) + '</span>' +
+          '<span class="micro" style="flex:none" data-f="side" data-ph="note">' + esc(p.side) + '</span></div>' +
+          '<div style="position:relative"><video playsinline src="' + esc(p.src) + '" style="cursor:pointer"></video>' +
+          '<button class="btn sm" data-video-btn style="position:absolute;bottom:14px;left:14px;background:var(--ink)">[ Play ]</button>' +
+          '</div></div>';
+      },
+      opts: [{k:'src', label:'File path'}]
+    },
+
+    audio: {
+      label: 'Audio',
+      hint: 'Framed player with a caption.',
+      make: function(){ return { src:'uploads/podcast-episode.mp3', label:'The proof', cap:'made with this exact method.' }; },
+      render: function(p){
+        return '<div class="frame" style="margin:32px 0;padding:24px">' +
+          '<div class="meta" style="margin-bottom:14px" data-f="label" data-ph="label">' + esc(p.label) + '</div>' +
+          '<div style="color:var(--phosphor);font-size:15px;margin-bottom:20px" data-f="cap" data-ph="caption">' + esc(p.cap) + '</div>' +
+          '<audio controls preload="none" src="' + esc(p.src) + '" style="width:100%"></audio></div>';
+      },
+      opts: [{k:'src', label:'File path'}]
+    },
+
+    image: {
+      label: 'Image',
+      hint: 'Framed and grayscale, per the imagery rule.',
+      make: function(){ return { src:'uploads/portrait.jpg', alt:'', cap:'' }; },
+      render: function(p){
+        return '<div style="margin:32px 0"><div class="frame dim" style="padding:6px">' +
+          '<img src="' + esc(p.src) + '" alt="' + esc(p.alt) + '" style="width:100%;filter:grayscale(1)"></div>' +
+          '<div class="micro" style="margin-top:10px" data-f="cap" data-ph="caption">' + esc(p.cap) + '</div></div>';
+      },
+      opts: [{k:'src', label:'File path'},{k:'alt', label:'Alt text'}]
+    },
+
+    signup: {
+      label: 'Signup',
+      hint: 'The capture block, wired to the live form.',
+      make: function(){ return { src:'dossier-file', label:'Follow the journey', body:'new tools, workflows, field notes, and what the goals actually did.', btn:'[ Follow the journey ]' }; },
+      render: function(p, id){
+        var fid = 'email-' + id;
+        return '<div data-signup="' + esc(p.src) + '" style="margin:40px 0 0">' +
+          '<div class="frame" data-signup-box style="padding:28px">' +
+          '<div class="meta" style="margin-bottom:6px" data-f="label" data-ph="label">' + esc(p.label) + '</div>' +
+          '<p style="margin:0 0 20px;color:var(--muted)" data-f="body" data-ph="body">' + esc(p.body) + '</p>' +
+          '<form class="capture" data-signup-form novalidate>' +
+          '<label class="lab" for="' + fid + '" style="width:100%;margin-bottom:0">Secure channel</label>' +
+          '<input id="' + fid + '" name="email" class="input" type="email" required placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>' +
+          '<button type="submit" class="btn solid" data-signup-btn data-f="btn" data-ph="button">' + esc(p.btn) + '</button></form>' +
+          '<div class="status micro" data-signup-status>Declassify (unsubscribe) any time.</div></div>' +
+          '<div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">' +
+          '<span class="meta">On the list: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>' +
+          '<a class="btn sm" href="archive.html" style="flex:none">[ Open the archive → ]</a></div></div>';
+      },
+      opts: [{k:'src', label:'Source tag (shows in Formspree)'}]
+    },
+
+    links: {
+      label: 'Buttons',
+      hint: 'A row of outline or solid links.',
+      make: function(){ return { items:[{t:'[ Open file → ]',h:'archive.html',s:false}] }; },
+      render: function(p){
+        var btns = p.items.map(function(it,i){
+          return '<a class="btn sm' + (it.s ? ' solid' : '') + '" href="' + esc(it.h) + '" data-f="items.'+i+'.t" data-ph="label">' + esc(it.t) + '</a>';
+        }).join('');
+        return '<div data-list="items" style="display:flex;gap:12px;flex-wrap:wrap;margin:24px 0">' + btns + '</div>';
+      }
+    }
+  };
+
+  /* ---- state ---- */
+  var store = load();
+  var doc = store.docs[store.current];
+
+  function blank(){
+    return {
+      id: 'd' + Date.now(),
+      meta: { title:'', no:'', kicker:'How-to', date:today(), slug:'', desc:'', tags:[], robots:'' },
+      blocks: []
+    };
+  }
+  function today(){
+    var d = new Date();
+    return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  }
+  function load(){
+    try {
+      var s = JSON.parse(localStorage.getItem(LSKEY));
+      if (s && s.docs && s.docs.length) return s;
+    } catch(e){}
+    var d = blank();
+    return { docs:[d], current:0 };
+  }
+  function save(){
+    try { localStorage.setItem(LSKEY, JSON.stringify(store)); } catch(e){}
+    var s = el('[data-save]');
+    s.textContent = 'Saved ' + new Date().toLocaleTimeString();
+  }
+
+  /* ---- get/set a dotted path inside block props ---- */
+  function getPath(o, path){
+    return path.split('.').reduce(function(a,k){ return a == null ? a : a[k]; }, o);
+  }
+  function setPath(o, path, val){
+    var ks = path.split('.'), last = ks.pop();
+    var t = ks.reduce(function(a,k){ return a[k]; }, o);
+    t[last] = val;
+  }
+
+  /* ---- render ---- */
+  function blockHTML(b, i){
+    return KIT[b.type].render(b.props, i);
+  }
+
+  function draw(){
+    var host = el('[data-blocks]');
+    host.innerHTML = '';
+
+    doc.blocks.forEach(function(b, i){
+      var shell = document.createElement('div');
+      shell.className = 'shell';
+      shell.setAttribute('draggable','true');
+      shell.dataset.i = i;
+      shell.innerHTML =
+        '<div class="bar">' +
+          '<button class="grip" title="Drag to reorder">::</button>' +
+          '<button data-up title="Move up">↑</button>' +
+          '<button data-down title="Move down">↓</button>' +
+          '<button data-dup title="Duplicate">⧉</button>' +
+          '<button data-rm title="Delete">×</button>' +
+        '</div>' + blockHTML(b, i);
+
+      // Text fields become editable in place, so the copy is written in
+      // the design rather than in a form beside it.
+      els('[data-f]', shell).forEach(function(node){
+        node.setAttribute('contenteditable','true');
+        node.addEventListener('input', function(){
+          // textContent, not innerText: innerText returns the text as the CSS
+          // renders it, so an uppercased heading would be stored uppercased
+          // and the author's real casing would be lost.
+          setPath(b.props, node.getAttribute('data-f'), node.textContent);
+          save();
+        });
+        node.addEventListener('paste', function(ev){
+          // Paste as plain text, or the block inherits foreign markup.
+          ev.preventDefault();
+          var t = (ev.clipboardData || window.clipboardData).getData('text/plain');
+          document.execCommand('insertText', false, t);
+        });
+        node.addEventListener('keydown', function(ev){
+          if (ev.key === 'Enter' && node.tagName !== 'PRE') ev.preventDefault();
+        });
+      });
+
+      // Repeatable groups get an add/remove strip that is editor-only.
+      var list = el('[data-list]', shell);
+      if (list) {
+        var key = list.getAttribute('data-list');
+        var ctl = document.createElement('div');
+        ctl.className = 'listctl';
+        ctl.innerHTML = '<button data-additem>+ row</button><button data-rmitem>− row</button>';
+        shell.appendChild(ctl);
+        el('[data-additem]', ctl).addEventListener('click', function(){
+          var arr = b.props[key];
+          var proto = arr[arr.length - 1];
+          arr.push(typeof proto === 'string' ? '' : JSON.parse(JSON.stringify(proto)));
+          save(); draw();
+        });
+        el('[data-rmitem]', ctl).addEventListener('click', function(){
+          if (b.props[key].length > 1) { b.props[key].pop(); save(); draw(); }
+        });
+      }
+
+      // Non-text options (file paths, alt text) sit under the block.
+      var opts = KIT[b.type].opts;
+      if (opts) {
+        var box = document.createElement('div');
+        box.style.cssText = 'margin-top:8px;display:flex;gap:8px;flex-wrap:wrap';
+        opts.forEach(function(o){
+          var f = document.createElement('input');
+          f.className = 'input';
+          f.style.cssText = 'flex:1;min-width:180px;font-size:12px;padding:6px 9px';
+          f.placeholder = o.label;
+          f.value = b.props[o.k] || '';
+          f.addEventListener('input', function(){ b.props[o.k] = f.value; save(); draw(); });
+          box.appendChild(f);
+        });
+        shell.appendChild(box);
+      }
+
+      el('[data-up]', shell).addEventListener('click', function(){ move(i, i-1); });
+      el('[data-down]', shell).addEventListener('click', function(){ move(i, i+1); });
+      el('[data-dup]', shell).addEventListener('click', function(){
+        doc.blocks.splice(i+1, 0, JSON.parse(JSON.stringify(b))); save(); draw();
+      });
+      el('[data-rm]', shell).addEventListener('click', function(){
+        doc.blocks.splice(i, 1); save(); draw();
+      });
+
+      shell.addEventListener('dragstart', function(ev){
+        // A drag that starts inside an editable field is text selection.
+        if (ev.target.hasAttribute && ev.target.hasAttribute('contenteditable')) { ev.preventDefault(); return; }
+        ev.dataTransfer.setData('text/plain', String(i));
+        ev.dataTransfer.effectAllowed = 'move';
+      });
+      shell.addEventListener('dragover', function(ev){ ev.preventDefault(); shell.classList.add('over'); });
+      shell.addEventListener('dragleave', function(){ shell.classList.remove('over'); });
+      shell.addEventListener('drop', function(ev){
+        ev.preventDefault();
+        shell.classList.remove('over');
+        move(parseInt(ev.dataTransfer.getData('text/plain'), 10), i);
+      });
+
+      host.appendChild(shell);
+    });
+
+    el('[data-prev="date"]').textContent = doc.meta.date || today();
+    el('[data-prev="fileline"]').textContent =
+      'File No. ' + (doc.meta.no || '000') + ' // ' + (doc.meta.kicker || 'How-to');
+  }
+
+  function move(from, to){
+    if (isNaN(from) || to < 0 || to >= doc.blocks.length || from === to) return;
+    doc.blocks.splice(to, 0, doc.blocks.splice(from, 1)[0]);
+    save(); draw();
+  }
+
+  /* ---- the kit sheet ---- */
+  var kitHost = el('[data-kit]');
+  Object.keys(KIT).forEach(function(type){
+    var b = document.createElement('button');
+    b.innerHTML = '<b>' + esc(KIT[type].label) + '</b><span>' + esc(KIT[type].hint) + '</span>';
+    b.addEventListener('click', function(){
+      doc.blocks.push({ type: type, props: KIT[type].make() });
+      el('[data-sheet]').classList.remove('on');
+      save(); draw();
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    kitHost.appendChild(b);
+  });
+
+  el('[data-add]').addEventListener('click', function(){ el('[data-sheet]').classList.add('on'); });
+  els('[data-close]').forEach(function(b){
+    b.addEventListener('click', function(){ els('.sheet').forEach(function(s){ s.classList.remove('on'); }); });
+  });
+
+  /* ---- meta fields ---- */
+  els('[data-meta]').forEach(function(input){
+    var k = input.getAttribute('data-meta');
+    input.value = doc.meta[k] || '';
+    input.addEventListener('input', function(){
+      doc.meta[k] = input.value;
+      if (k === 'no' && !doc.meta.slug) el('[data-meta="slug"]').placeholder = 'file-' + input.value + '.html';
+      save(); draw();
+    });
+  });
+  function paintTags(){
+    els('[data-tag]').forEach(function(b){
+      b.setAttribute('aria-pressed', String(doc.meta.tags.indexOf(b.getAttribute('data-tag')) > -1));
+    });
+  }
+  els('[data-tag]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var t = b.getAttribute('data-tag'), i = doc.meta.tags.indexOf(t);
+      if (i > -1) doc.meta.tags.splice(i, 1); else doc.meta.tags.push(t);
+      save(); paintTags();
+    });
+  });
+
+  /* ---- drafts ---- */
+  function paintDrafts(){
+    var sel = el('[data-drafts]');
+    sel.innerHTML = '';
+    store.docs.forEach(function(d, i){
+      var o = document.createElement('option');
+      o.value = i;
+      o.textContent = (d.meta.no ? 'No. ' + d.meta.no + ' — ' : '') + (d.meta.title || 'Untitled');
+      sel.appendChild(o);
+    });
+    sel.value = String(store.current);
+  }
+  el('[data-drafts]').addEventListener('change', function(ev){
+    store.current = parseInt(ev.target.value, 10);
+    doc = store.docs[store.current];
+    save(); mount();
+  });
+  el('[data-new]').addEventListener('click', function(){
+    store.docs.push(blank());
+    store.current = store.docs.length - 1;
+    doc = store.docs[store.current];
+    save(); mount();
+  });
+  el('[data-del]').addEventListener('click', function(){
+    if (!window.confirm('Delete this draft? It is not published anywhere yet.')) return;
+    store.docs.splice(store.current, 1);
+    if (!store.docs.length) store.docs.push(blank());
+    store.current = 0;
+    doc = store.docs[0];
+    save(); mount();
+  });
+
+  /* ---- output ---- */
+  function slug(){
+    return doc.meta.slug || ('file-' + (doc.meta.no || '000') + '.html');
+  }
+
+  // The editor's own hooks (data-f, data-ph, data-list) are meaningless in a
+  // published file, so they are stripped through the DOM rather than by regex
+  // over the string, which would trip over the copy inside the attributes.
+  function cleaned(html){
+    var box = document.createElement('div');
+    box.innerHTML = html;
+    els('[data-f],[data-ph],[data-list]', box).forEach(function(n){
+      n.removeAttribute('data-f');
+      n.removeAttribute('data-ph');
+      n.removeAttribute('data-list');
+    });
+    return box.innerHTML;
+  }
+
+  function fileHTML(){
+    var m = doc.meta;
+    var body = doc.blocks.map(function(b, i){ return '  ' + cleaned(blockHTML(b, i)); }).join('\n\n');
+    return '<!doctype html>\n<html lang="en">\n<head>\n' +
+      '<meta charset="utf-8">\n' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+      '<meta name="color-scheme" content="dark">\n' +
+      (m.robots ? '<meta name="robots" content="' + esc(m.robots) + '">\n' : '') +
+      '<title>THE DOSSIER // File No. ' + esc(m.no) + ' // ' + esc(m.title) + '</title>\n' +
+      '<meta name="description" content="' + esc(m.desc) + '">\n' +
+      '<meta property="og:title" content="File No. ' + esc(m.no) + ' // ' + esc(m.title) + '">\n' +
+      '<meta property="og:description" content="' + esc(m.desc) + '">\n' +
+      '<meta property="og:type" content="article">\n' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
+      '<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">\n' +
+      '<link rel="stylesheet" href="assets/dossier.css">\n</head>\n' +
+      '<body data-signup-success="On the list. New field notes will find you.">\n' +
+      '<div class="stage narrow">\n\n' +
+      '  <div class="nav">\n    <a class="logo" href="home.html">The Dossier//</a>\n' +
+      '    <div class="links"><span class="micro">Status: Declassified</span></div>\n  </div>\n\n' +
+      '  <div class="filehead" style="margin:40px 0 16px">\n' +
+      '    <span>' + esc(m.date) + '</span>\n' +
+      '    <span>File No. ' + esc(m.no) + ' // ' + esc(m.kicker) + '</span>\n  </div>\n\n' +
+      body + '\n\n' +
+      '  <div class="foot">\n    <span class="micro">The Dossier// End of file</span>\n' +
+      '    <span class="micro">Forward at your discretion</span>\n  </div>\n\n' +
+      '</div>\n\n' +
+      '<script src="assets/file.js"><\/script>\n' +
+      '<script src="assets/signup.js?v=2"><\/script>\n' +
+      '</body>\n</html>\n';
+  }
+
+  function rowHTML(){
+    var m = doc.meta;
+    return '    <div class="row" data-file data-date="' + esc(m.date) + '" data-tags="' + esc(m.tags.join(' ')) + '">\n' +
+      '      <span class="no">' + esc(m.no) + '</span>\n' +
+      '      <div class="body">\n' +
+      '        <div class="ttl"><a href="' + esc(slug()) + '">' + esc(m.title) + '</a></div>\n' +
+      '        <div class="sub">\n' +
+      '          <span class="micro" data-file-date></span>\n' +
+      '          <span class="micro" style="color:var(--line-dim)">//</span>\n' +
+      '          <span class="micro" data-file-tags></span>\n' +
+      '        </div>\n' +
+      '      </div>\n' +
+      '    </div>\n';
+  }
+
+  function sheetOut(title, note, body){
+    el('[data-outtitle]').textContent = title;
+    el('[data-outnote]').textContent = note;
+    el('[data-outbody]').textContent = body;
+    el('[data-out]').classList.add('on');
+  }
+
+  el('[data-download]').addEventListener('click', function(){
+    var blob = new Blob([fileHTML()], { type:'text/html' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = slug();
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  el('[data-row]').addEventListener('click', function(){
+    var t = rowHTML();
+    if (navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){});
+    sheetOut('Archive row', 'Paste this straight after the ' + MARKER + ' marker in archive.html.', t);
+  });
+
+  /* ---- token ---- */
+  function token(){ try { return localStorage.getItem(TOKKEY) || ''; } catch(e){ return ''; } }
+  el('[data-token]').value = token();
+  el('[data-savetoken]').addEventListener('click', function(){
+    try { localStorage.setItem(TOKKEY, el('[data-token]').value.trim()); } catch(e){}
+    pubnote('Token saved to this browser.');
+  });
+  el('[data-cleartoken]').addEventListener('click', function(){
+    try { localStorage.removeItem(TOKKEY); } catch(e){}
+    el('[data-token]').value = '';
+    pubnote('Token forgotten.');
+  });
+  function pubnote(msg, warn){
+    var n = el('[data-pubnote]');
+    n.textContent = msg;
+    n.className = 'note' + (warn ? ' warn' : '');
+  }
+
+  /* ---- publish ---- */
+  function gh(path, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({
+      'Authorization': 'Bearer ' + token(),
+      'Accept': 'application/vnd.github+json'
+    }, opts.headers || {});
+    return fetch('https://api.github.com/repos/' + REPO.owner + '/' + REPO.repo + path, opts);
+  }
+  function b64(str){
+    return btoa(String.fromCharCode.apply(null, new TextEncoder().encode(str)));
+  }
+  function unb64(str){
+    return new TextDecoder().decode(Uint8Array.from(atob(str.replace(/\n/g,'')), function(c){ return c.charCodeAt(0); }));
+  }
+
+  function put(path, content, message, sha){
+    return gh('/contents/' + path, {
+      method: 'PUT',
+      body: JSON.stringify({
+        message: message, content: b64(content), branch: REPO.branch,
+        sha: sha || undefined
+      })
+    }).then(function(r){
+      if (!r.ok) return r.json().then(function(j){ throw new Error(j.message || ('HTTP ' + r.status)); });
+      return r.json();
+    });
+  }
+  function getFile(path){
+    return gh('/contents/' + path + '?ref=' + REPO.branch).then(function(r){
+      if (r.status === 404) return null;
+      if (!r.ok) return r.json().then(function(j){ throw new Error(j.message || ('HTTP ' + r.status)); });
+      return r.json();
+    });
+  }
+
+  el('[data-publish]').addEventListener('click', function(){
+    var m = doc.meta;
+    if (!token())  return pubnote('No token saved. Publishing needs one.', true);
+    if (!m.title)  return pubnote('The file needs a title.', true);
+    if (!m.no)     return pubnote('The file needs a number.', true);
+    if (!doc.blocks.length) return pubnote('The file is empty.', true);
+
+    var btn = el('[data-publish]');
+    btn.disabled = true;
+    pubnote('Publishing…');
+
+    getFile(slug())
+      .then(function(existing){
+        if (existing && !window.confirm(slug() + ' already exists. Overwrite it?')) throw new Error('cancelled');
+        return put(slug(), fileHTML(),
+          'Publish file no. ' + m.no + ': ' + m.title,
+          existing && existing.sha);
+      })
+      .then(function(){
+        pubnote('File published. Adding the archive row…');
+        return getFile('archive.html');
+      })
+      .then(function(arch){
+        var html = unb64(arch.content);
+        if (html.indexOf('href="' + slug() + '"') > -1) return null;   // already listed
+        if (html.indexOf(MARKER) === -1) throw new Error('archive marker missing');
+        html = html.replace(MARKER, MARKER + '\n\n' + rowHTML());
+        return put('archive.html', html, 'List file no. ' + m.no + ' in the archive', arch.sha);
+      })
+      .then(function(){
+        pubnote('Published. GitHub Pages takes about a minute to build.');
+        btn.disabled = false;
+      })
+      .catch(function(err){
+        pubnote(err.message === 'cancelled' ? 'Cancelled.' : ('Failed: ' + err.message), true);
+        btn.disabled = false;
+      });
+  });
+
+  /* ---- boot ---- */
+  function mount(){
+    els('[data-meta]').forEach(function(i){ i.value = doc.meta[i.getAttribute('data-meta')] || ''; });
+    paintTags();
+    paintDrafts();
+    draw();
+  }
+  mount();
+})();
+</script>
+</body>
+</html>

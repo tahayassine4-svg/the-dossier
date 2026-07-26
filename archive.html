@@ -64,12 +64,14 @@
   </div>
 
   <!-- ==========================================================
-       NEW FILE: copy one .row, set data-date to the publication
-       code and data-tags to any of self-development / tools /
-       ai-leverage, then put it at the top. The count and the
+       NEW FILE: the builder inserts rows directly after the
+       @files marker below, newest first. Do not remove or
+       reword that marker. To add one by hand instead, copy a
+       .row and set data-date and data-tags. The count and the
        filters read the rows, so nothing else needs updating.
        ========================================================== -->
   <div style="margin-top:8px">
+    <!-- @files -->
 
     <div class="row" data-file data-date="20260726" data-tags="tools ai-leverage">
       <span class="no">001</span>
@@ -92,6 +94,14 @@
   </div>
 
 </div>
+
+<!-- Editor shortcut. Convenience only, not access control: the page is
+     public and so is this markup. Publishing is gated by the GitHub token,
+     which lives only in the author's browser. -->
+<a href="builder.html" data-editor-add title="Build a new file"
+   style="display:none;position:fixed;right:26px;bottom:26px;width:54px;height:54px;
+          background:var(--accent);color:var(--ink);font-weight:700;font-size:26px;
+          line-height:54px;text-align:center;z-index:40">+</a>
 
 <script>
 (function(){
@@ -139,6 +149,17 @@
   });
 
   apply('all');
+
+  // archive.html#editor turns the + on for this browser, #noeditor turns it
+  // off again. Nothing here protects anything; it only keeps the button out
+  // of a reader's way.
+  try {
+    if (location.hash === '#editor')   localStorage.setItem('dossier_editor', '1');
+    if (location.hash === '#noeditor') localStorage.removeItem('dossier_editor');
+    if (localStorage.getItem('dossier_editor') === '1') {
+      document.querySelector('[data-editor-add]').style.display = 'block';
+    }
+  } catch(e){}
 })();
 </script>
 </body>

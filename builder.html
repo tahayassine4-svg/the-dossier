@@ -147,8 +147,15 @@
     </section>
 
     <section>
+      <h3>Draft</h3>
+      <button class="act" data-draft>[ Save as an unlisted draft ]</button>
+      <p class="note">Goes live at a working URL under drafts/, kept out of the archive and out of search. Anyone holding the link can still read it.</p>
+      <div data-draftlist></div>
+    </section>
+
+    <section>
       <h3>Publish</h3>
-      <button class="act solid" data-publish>[ Publish to the Dossier ]</button>
+      <button class="act solid" data-publish>[ Publish to the archive ]</button>
       <button class="act" data-download>[ Download the .html ]</button>
       <button class="act" data-row>[ Copy the archive row ]</button>
       <p class="note" data-pubnote></p>
@@ -677,14 +684,19 @@
     return box.innerHTML;
   }
 
-  function fileHTML(){
+  // A draft lives one directory down, so every relative path in it (assets,
+  // uploads, the links back to the site) is resolved against the repo root by
+  // a single base tag rather than by rewriting each src.
+  function fileHTML(isDraft){
     var m = doc.meta;
     var body = doc.blocks.map(function(b, i){ return '  ' + cleaned(blockHTML(b, i)); }).join('\n\n');
+    var robots = isDraft ? 'noindex,nofollow' : m.robots;
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<meta charset="utf-8">\n' +
+      (isDraft ? '<base href="../">\n' : '') +
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
       '<meta name="color-scheme" content="dark">\n' +
-      (m.robots ? '<meta name="robots" content="' + esc(m.robots) + '">\n' : '') +
+      (robots ? '<meta name="robots" content="' + esc(robots) + '">\n' : '') +
       '<title>THE DOSSIER // File No. ' + esc(m.no) + ' // ' + esc(m.title) + '</title>\n' +
       '<meta name="description" content="' + esc(m.desc) + '">\n' +
       '<meta property="og:title" content="File No. ' + esc(m.no) + ' // ' + esc(m.title) + '">\n' +
@@ -733,7 +745,7 @@
   }
 
   el('[data-download]').addEventListener('click', function(){
-    var blob = new Blob([fileHTML()], { type:'text/html' });
+    var blob = new Blob([fileHTML(false)], { type:'text/html' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = slug();
@@ -753,11 +765,13 @@
   el('[data-savetoken]').addEventListener('click', function(){
     try { localStorage.setItem(TOKKEY, el('[data-token]').value.trim()); } catch(e){}
     pubnote('Token saved to this browser.');
+    listDrafts();
   });
   el('[data-cleartoken]').addEventListener('click', function(){
     try { localStorage.removeItem(TOKKEY); } catch(e){}
     el('[data-token]').value = '';
     pubnote('Token forgotten.');
+    listDrafts();
   });
   function pubnote(msg, warn){
     var n = el('[data-pubnote]');
@@ -801,12 +815,71 @@
     });
   }
 
-  el('[data-publish]').addEventListener('click', function(){
+  function del(path, sha, message){
+    return gh('/contents/' + path, {
+      method: 'DELETE',
+      body: JSON.stringify({ message: message, sha: sha, branch: REPO.branch })
+    }).then(function(r){
+      if (!r.ok) return r.json().then(function(j){ throw new Error(j.message || ('HTTP ' + r.status)); });
+      return r.json();
+    });
+  }
+
+  function draftPath(){ return 'drafts/' + slug(); }
+  function urlFor(path){ return new URL(path, location.href).href; }
+
+  function ready(){
     var m = doc.meta;
-    if (!token())  return pubnote('No token saved. Publishing needs one.', true);
-    if (!m.title)  return pubnote('The file needs a title.', true);
-    if (!m.no)     return pubnote('The file needs a number.', true);
-    if (!doc.blocks.length) return pubnote('The file is empty.', true);
+    if (!token())  { pubnote('No token saved. This needs one.', true); return false; }
+    if (!m.title)  { pubnote('The file needs a title.', true); return false; }
+    if (!m.no)     { pubnote('The file needs a number.', true); return false; }
+    if (!doc.blocks.length) { pubnote('The file is empty.', true); return false; }
+    return true;
+  }
+
+  /* ---- drafts on the server ---- */
+  function listDrafts(){
+    var host = el('[data-draftlist]');
+    if (!token()) { host.innerHTML = ''; return; }
+    gh('/contents/drafts?ref=' + REPO.branch)
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .then(function(items){
+        if (!items.length) { host.innerHTML = ''; return; }
+        host.innerHTML = '<p class="note" style="margin-top:12px">Unlisted drafts</p>' +
+          items.filter(function(f){ return /\.html$/.test(f.name); }).map(function(f){
+            return '<a class="note" style="display:block;color:var(--accent)" target="_blank" rel="noopener" href="' +
+              esc(urlFor('drafts/' + f.name)) + '">' + esc(f.name) + ' →</a>';
+          }).join('');
+      })
+      .catch(function(){ host.innerHTML = ''; });
+  }
+
+  el('[data-draft]').addEventListener('click', function(){
+    if (!ready()) return;
+    var btn = el('[data-draft]');
+    btn.disabled = true;
+    pubnote('Saving draft…');
+
+    getFile(draftPath())
+      .then(function(existing){
+        return put(draftPath(), fileHTML(true),
+          'Draft file no. ' + doc.meta.no + ': ' + doc.meta.title,
+          existing && existing.sha);
+      })
+      .then(function(){
+        pubnote('Draft saved. Live in about a minute at ' + urlFor(draftPath()));
+        btn.disabled = false;
+        listDrafts();
+      })
+      .catch(function(err){
+        pubnote('Draft failed: ' + err.message, true);
+        btn.disabled = false;
+      });
+  });
+
+  el('[data-publish]').addEventListener('click', function(){
+    if (!ready()) return;
+    var m = doc.meta;
 
     var btn = el('[data-publish]');
     btn.disabled = true;
@@ -815,7 +888,7 @@
     getFile(slug())
       .then(function(existing){
         if (existing && !window.confirm(slug() + ' already exists. Overwrite it?')) throw new Error('cancelled');
-        return put(slug(), fileHTML(),
+        return put(slug(), fileHTML(false),
           'Publish file no. ' + m.no + ': ' + m.title,
           existing && existing.sha);
       })
@@ -831,8 +904,19 @@
         return put('archive.html', html, 'List file no. ' + m.no + ' in the archive', arch.sha);
       })
       .then(function(){
+        // The draft copy would otherwise sit there as a second, stale URL
+        // for the same file.
+        pubnote('Published. Clearing the draft…');
+        return getFile(draftPath());
+      })
+      .then(function(d){
+        if (!d) return null;
+        return del(draftPath(), d.sha, 'Clear the draft of file no. ' + m.no);
+      })
+      .then(function(){
         pubnote('Published. GitHub Pages takes about a minute to build.');
         btn.disabled = false;
+        listDrafts();
       })
       .catch(function(err){
         pubnote(err.message === 'cancelled' ? 'Cancelled.' : ('Failed: ' + err.message), true);
@@ -848,6 +932,7 @@
     draw();
   }
   mount();
+  listDrafts();
 })();
 </script>
 </body>

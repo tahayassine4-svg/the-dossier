@@ -1,0 +1,12 @@
+name = "dossier-beehiiv"
+main = "beehiiv-worker.js"
+compatibility_date = "2026-07-01"
+
+# Not a secret: this only says which origin the browser may call from.
+[vars]
+ALLOWED_ORIGIN = "https://tahayassine4-svg.github.io"
+
+# BEEHIIV_API_KEY and BEEHIIV_PUBLICATION_ID are NOT set here.
+# They are set once, encrypted, with:
+#   wrangler secret put BEEHIIV_API_KEY
+#   wrangler secret put BEEHIIV_PUBLICATION_ID

@@ -5,22 +5,39 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>The archive // THE DOSSIER</title>
-<meta name="description" content="Every file released in the Dossier, with its date. All of them stay open.">
+<meta name="description" content="Every file released in the Dossier, with its date. Filter by subject.">
 <meta property="og:title" content="The archive // THE DOSSIER">
-<meta property="og:description" content="Every file released so far, with its date. All of them stay open, none of them expire.">
+<meta property="og:description" content="Every file released so far, with its date. Filter by subject.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/dossier.css">
 <style>
-  /* One row per released file. The number column stays fixed so the dates
-     and titles line up as the archive grows. */
-  .filerow .no{min-width:3.4em}
-  .file-stamp{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}
+  /* Filters are tag chips, not buttons: the solid state is the tag system's
+     own hot state, so the page keeps its single solid-green element. */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:24px 0 0}
+  .chip{font-family:var(--font-mono);background:transparent;cursor:pointer;
+        border:1px solid var(--line-dim);color:var(--muted);padding:5px 13px;
+        font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-radius:0}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);
+        color:var(--ink);font-weight:700}
+
+  /* One row per file: number, date, title, subject. Nothing else. */
+  .row{display:flex;gap:20px;padding:20px 0;border-top:1px solid var(--line-dim);align-items:baseline}
+  .row:last-of-type{border-bottom:1px solid var(--line-dim)}
+  .row .no{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.12em;flex:none;min-width:3.2em}
+  .row .body{flex:1;min-width:0}
+  .row .ttl{color:var(--phosphor);font-weight:700;font-size:14px;letter-spacing:.06em;
+            text-transform:uppercase}
+  .row .ttl a{color:inherit}
+  .row .ttl a:hover{color:var(--accent-bright)}
+  .row .sub{margin-top:6px;display:flex;gap:14px;flex-wrap:wrap}
+  .empty{padding:32px 0;border-top:1px solid var(--line-dim)}
 </style>
 </head>
-<body data-signup-success="Clearance granted. The next file will find you.">
+<body>
 <div class="stage narrow">
 
   <div class="nav">
@@ -29,77 +46,44 @@
       <a href="home.html">How it works</a>
       <a href="mission.html">Mission targets</a>
       <a href="archive.html" style="color:var(--accent)">The archive</a>
+      <a href="about.html">Yassine</a>
     </div>
   </div>
 
-  <div class="filehead" style="margin:40px 0 16px">
-    <span data-latest-file>20260726</span>
-    <span>Archive // Complete record</span>
+  <div class="filehead" style="margin:40px 0 24px">
+    <span>The archive</span>
+    <span><span data-count>0</span> files on record</span>
   </div>
 
-  <div class="frame" style="padding:56px 32px;text-align:center">
-    <div class="display">the archive</div>
-    <div style="color:var(--accent-bright);font-weight:700;font-size:clamp(13px,2.4vw,17px);letter-spacing:.18em;text-transform:uppercase;margin-top:12px">every file released<span class="cursor"></span></div>
-    <p style="margin:24px auto 0;max-width:50ch;text-align:center">all of them stay open. no expiry, no paywall, no account. read them in any order.</p>
+  <div class="filters" role="group" aria-label="Filter files by subject">
+    <button class="chip" data-filter="all" aria-pressed="true">All</button>
+    <button class="chip" data-filter="self-development" aria-pressed="false">Self-development</button>
+    <button class="chip" data-filter="tools" aria-pressed="false">Tools</button>
+    <button class="chip" data-filter="ai-leverage" aria-pressed="false">AI leverage</button>
   </div>
 
-  <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
-    <span class="k">Files on record:</span><span class="v" data-count="files"></span>
-    <span class="k">Latest:</span><span class="v" data-latest-file></span>
-    <span class="k">Access:</span><span class="v">Open</span>
-  </div>
+  <!-- ==========================================================
+       NEW FILE: copy one .row, set data-date to the publication
+       code and data-tags to any of self-development / tools /
+       ai-leverage, then put it at the top. The count and the
+       filters read the rows, so nothing else needs updating.
+       ========================================================== -->
+  <div style="margin-top:8px">
 
-  <div class="divider">//──────//</div>
-
-  <!-- ===========================================================
-       NEW FILE: copy one .filerow block, set data-date to the
-       publication code (YYYYMMDD), and put it at the top of the
-       list. The count and the latest date in the header derive
-       from the rows, so nothing else needs updating.
-       =========================================================== -->
-  <section id="files">
-    <div class="h2">Files // <span style="color:var(--phosphor)">newest first</span></div>
-    <hr class="rule">
-
-    <div style="margin-top:24px">
-
-      <div class="filerow" data-file data-date="20260726">
-        <span class="no">001</span>
-        <div class="body">
-          <div class="file-stamp">
-            <span class="micro" data-file-date></span>
-            <span class="tag dim">How-to</span>
-          </div>
-          <div class="ttl">Make your own podcast on any topic</div>
-          <p>two free tools, two copy-paste prompts, and a worked example. turn any topic into your own two-person podcast, grounded on real research, in 2 to 5 minutes.</p>
-          <div style="margin-top:14px">
-            <a class="btn sm" href="guide.html">[ Open file → ]</a>
-          </div>
+    <div class="row" data-file data-date="20260726" data-tags="tools ai-leverage">
+      <span class="no">001</span>
+      <div class="body">
+        <div class="ttl"><a href="guide.html">Make your own podcast on any topic</a></div>
+        <div class="sub">
+          <span class="micro" data-file-date></span>
+          <span class="micro" style="color:var(--line-dim)">//</span>
+          <span class="micro" data-file-tags></span>
         </div>
       </div>
-
-    </div>
-  </section>
-
-  <section id="clearance" data-signup="dossier-archive" style="margin-top:56px">
-    <div class="frame" data-signup-box style="padding:32px 28px">
-      <div class="meta" style="margin-bottom:6px">Request clearance</div>
-      <p style="margin:0 0 20px;color:var(--muted)">the archive stays open either way. leave a channel if you want the next file the day it lands instead of finding it here later.</p>
-      <form class="capture" data-signup-form novalidate>
-        <label class="lab" for="emailArchive" style="width:100%;margin-bottom:0">Secure channel</label>
-        <input id="emailArchive" name="email" class="input" type="email" required
-               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
-        <button type="submit" class="btn solid" data-signup-btn>[ Request clearance ]</button>
-      </form>
-      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
     </div>
 
-    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
-         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">Clearance on file: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
-      <a class="btn sm" href="mission.html" style="flex:none">[ Mission board → ]</a>
-    </div>
-  </section>
+    <p class="micro empty" data-empty style="display:none">No files under that subject yet.</p>
+  </div>
 
   <div class="foot">
     <span class="micro">The Dossier// End of file</span>
@@ -108,24 +92,52 @@
 
 </div>
 
-<script src="assets/signup.js"></script>
 <script>
 (function(){
-  var files = [].slice.call(document.querySelectorAll('[data-file]'));
-  var latest = '';
+  var LABEL = {
+    'self-development': 'Self-development',
+    'tools': 'Tools',
+    'ai-leverage': 'AI leverage'
+  };
 
-  files.forEach(function(row){
-    var date = row.getAttribute('data-date') || '';
-    row.querySelector('[data-file-date]').textContent = 'Filed ' + date;
-    if (date > latest) latest = date;
+  var rows  = [].slice.call(document.querySelectorAll('[data-file]'));
+  var chips = [].slice.call(document.querySelectorAll('[data-filter]'));
+  var empty = document.querySelector('[data-empty]');
+  var count = document.querySelector('[data-count]');
+
+  rows.forEach(function(row){
+    row.querySelector('[data-file-date]').textContent = 'Filed ' + (row.getAttribute('data-date') || '');
+    row.querySelector('[data-file-tags]').textContent =
+      (row.getAttribute('data-tags') || '').split(/\s+/).filter(Boolean)
+        .map(function(t){ return LABEL[t] || t; }).join(' · ');
   });
 
-  var count = document.querySelector('[data-count="files"]');
-  if (count) count.textContent = String(files.length).padStart(3, '0');
+  function apply(filter){
+    var shown = 0;
+    rows.forEach(function(row){
+      var tags = ' ' + (row.getAttribute('data-tags') || '') + ' ';
+      var hit  = filter === 'all' || tags.indexOf(' ' + filter + ' ') > -1;
+      row.style.display = hit ? '' : 'none';
+      if (hit) shown++;
+    });
+    empty.style.display = shown ? 'none' : 'block';
+    count.textContent = String(shown).padStart(3, '0');
 
-  [].forEach.call(document.querySelectorAll('[data-latest-file]'), function(el){
-    if (latest) el.textContent = latest;
+    // The last visible row carries the closing rule, since :last-of-type
+    // still points at a hidden row once a filter is on.
+    var visible = rows.filter(function(r){ return r.style.display !== 'none'; });
+    rows.forEach(function(r){ r.style.borderBottom = ''; });
+    if (visible.length) visible[visible.length - 1].style.borderBottom = '1px solid var(--line-dim)';
+  }
+
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      chips.forEach(function(c){ c.setAttribute('aria-pressed', String(c === chip)); });
+      apply(chip.getAttribute('data-filter'));
+    });
   });
+
+  apply('all');
 })();
 </script>
 </body>

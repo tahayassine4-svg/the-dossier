@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>Mission targets // THE DOSSIER</title>
-<meta name="description" content="The public board: every goal I am running, with the real number attached and updated in the open. 100 km ultra trail, 100 files, 1000 people.">
+<meta name="description" content="The public board: every goal I am running, the current number, and the note from the last update.">
 <meta property="og:title" content="Mission targets // THE DOSSIER">
-<meta property="og:description" content="Every goal, with the real number attached. Updated in the open, whether or not it moved.">
+<meta property="og:description" content="Every goal, with the current number and the note from the last update.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,15 +20,22 @@
          overflow:hidden;margin:0 0 10px}
   .meter .on{color:var(--accent)}
   .meter .off{color:var(--line-dim)}
-  .target-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
-  .target-name{color:var(--phosphor);font-weight:700;font-size:15px;line-height:22px;
-               letter-spacing:.06em;text-transform:uppercase;margin:10px 0 16px}
-  .target-figs{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
-  .target-note{margin:12px 0 0;color:var(--muted);font-size:11px;line-height:18px;letter-spacing:.06em}
+
+  .goal{padding:28px 0;border-top:1px solid var(--line-dim)}
+  .goal:last-of-type{border-bottom:1px solid var(--line-dim)}
+  .goal-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
+  .goal-name{color:var(--phosphor);font-weight:700;font-size:15px;line-height:22px;
+             letter-spacing:.06em;text-transform:uppercase;margin:8px 0 16px}
+  .figs{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
+
+  /* Update notes. Each entry is dated; the newest sets the goal stamp. */
+  .log{margin-top:18px;padding-left:16px;border-left:1px solid var(--line-dim)}
+  .entry + .entry{margin-top:14px}
+  .entry p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:22px;max-width:60ch}
   @media(max-width:520px){ .meter{font-size:12px} }
 </style>
 </head>
-<body data-signup-success="Clearance granted. The next file will find you.">
+<body>
 <div class="stage narrow">
 
   <div class="nav">
@@ -37,110 +44,78 @@
       <a href="home.html">How it works</a>
       <a href="mission.html" style="color:var(--accent)">Mission targets</a>
       <a href="archive.html">The archive</a>
+      <a href="about.html">Yassine</a>
     </div>
   </div>
 
-  <div class="filehead" style="margin:40px 0 16px">
-    <span data-last-update>20260726</span>
-    <span>Mission board // Public record</span>
+  <div class="filehead" style="margin:40px 0 24px">
+    <span>Mission targets</span>
+    <span>Last update <span data-last-update></span></span>
   </div>
-
-  <div class="frame" style="padding:56px 32px;text-align:center">
-    <div class="display">mission targets</div>
-    <div style="color:var(--accent-bright);font-weight:700;font-size:clamp(13px,2.4vw,17px);letter-spacing:.18em;text-transform:uppercase;margin-top:12px">the real numbers<span class="cursor"></span></div>
-    <p style="margin:24px auto 0;max-width:50ch;text-align:center">the goals im actually running, with the current figure attached. no rounding up, no vanity metrics. if a bar hasnt moved in a month, thats the report.</p>
-  </div>
-
-  <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
-    <span class="k">Targets active:</span><span class="v" data-count="targets">3</span>
-    <span class="k">Review cycle:</span><span class="v">Weekly, monthly where slower</span>
-    <span class="k">Last update:</span><span class="v" data-last-update>20260726</span>
-  </div>
-
-  <div class="divider">//──────//</div>
 
   <!-- ==========================================================
-       UPDATE DAY: change data-current and data-updated on a card.
+       UPDATE DAY: change data-current on the goal, then add a new
+       .entry at the top of its .log with the date and the note.
        The meter, the percentage, the figures, the remaining count
-       and the header date are all derived from those two values.
-       Nothing else needs touching.
+       and both last-update stamps derive from those.
        ========================================================== -->
-  <section id="board">
 
-    <div class="frame dim" data-target style="padding:24px"
-         data-current="55" data-target-value="100" data-unit="km"
-         data-cycle="Reviewed monthly" data-updated="20260726">
-      <div class="target-head">
-        <span class="meta">M-01 // Endurance</span>
-        <span class="micro" data-target-stamp></span>
-      </div>
-      <div class="target-name">Run a 100 km ultra trail</div>
-      <div class="meter" data-target-meter></div>
-      <div class="target-figs">
-        <span class="micro" style="color:var(--muted)">Current: <span data-target-figs style="color:var(--phosphor)"></span></span>
-        <span class="meta" data-target-pct></span>
-      </div>
-      <p class="target-note" style="text-transform:none">longest distance completed so far is 55 km. the next step up is the one that has to be trained for, not survived. <span data-target-left style="color:var(--phosphor)"></span></p>
+  <div class="goal" data-goal data-current="55" data-target="100" data-unit="km">
+    <div class="goal-head">
+      <span class="meta">M-01 // Endurance</span>
+      <span class="micro" data-goal-stamp></span>
     </div>
-
-    <div class="frame dim" data-target style="padding:24px;margin-top:16px"
-         data-current="1" data-target-value="100" data-unit="files"
-         data-cycle="Reviewed weekly" data-updated="20260726">
-      <div class="target-head">
-        <span class="meta">M-02 // Output</span>
-        <span class="micro" data-target-stamp></span>
-      </div>
-      <div class="target-name">File 100 dossiers</div>
-      <div class="meter" data-target-meter></div>
-      <div class="target-figs">
-        <span class="micro" style="color:var(--muted)">Current: <span data-target-figs style="color:var(--phosphor)"></span></span>
-        <span class="meta" data-target-pct></span>
-      </div>
-      <p class="target-note" style="text-transform:none">one file a week is the pace that holds. everything released so far sits in <a href="archive.html">the archive</a>. <span data-target-left style="color:var(--phosphor)"></span></p>
+    <div class="goal-name">Run a 100 km ultra trail</div>
+    <div class="meter" data-goal-meter></div>
+    <div class="figs">
+      <span class="micro" style="color:var(--muted)">Current: <span data-goal-figs style="color:var(--phosphor)"></span></span>
+      <span class="meta" data-goal-pct></span>
     </div>
-
-    <div class="frame dim" data-target style="padding:24px;margin-top:16px"
-         data-current="0" data-target-value="1000" data-unit="people"
-         data-cycle="Reviewed weekly" data-updated="20260726">
-      <div class="target-head">
-        <span class="meta">M-03 // Reach</span>
-        <span class="micro" data-target-stamp></span>
+    <div class="log">
+      <div class="entry" data-date="20260726">
+        <span class="micro" data-entry-date></span>
+        <p>Board opened. Longest distance completed to date is 55 km.</p>
       </div>
-      <div class="target-name">1000 people in the dossier</div>
-      <div class="meter" data-target-meter></div>
-      <div class="target-figs">
-        <span class="micro" style="color:var(--muted)">Current: <span data-target-figs style="color:var(--phosphor)"></span></span>
-        <span class="meta" data-target-pct></span>
-      </div>
-      <p class="target-note" style="text-transform:none">counted as confirmed emails on the channel, nothing else. every one of them is a person who asked, which is the only number worth reporting. <span data-target-left style="color:var(--phosphor)"></span></p>
     </div>
-
-  </section>
-
-  <div style="background:var(--accent);color:var(--ink);padding:28px 32px;margin-top:56px">
-    <div style="font-size:11px;line-height:18px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.7">Rule of the board</div>
-    <div style="font-size:clamp(17px,3.2vw,24px);line-height:1.3;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:8px">A number that didnt move still gets published</div>
   </div>
 
-  <section id="clearance" data-signup="dossier-mission" style="margin-top:56px">
-    <div class="frame" data-signup-box style="padding:32px 28px">
-      <div class="meta" style="margin-bottom:6px">Request clearance</div>
-      <p style="margin:0 0 20px;color:var(--muted)">M-03 is this list. leave a channel open and you move the bar yourself, plus every file lands with you first.</p>
-      <form class="capture" data-signup-form novalidate>
-        <label class="lab" for="emailMission" style="width:100%;margin-bottom:0">Secure channel</label>
-        <input id="emailMission" name="email" class="input" type="email" required
-               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
-        <button type="submit" class="btn solid" data-signup-btn>[ Request clearance ]</button>
-      </form>
-      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
+  <div class="goal" data-goal data-current="1" data-target="100" data-unit="files">
+    <div class="goal-head">
+      <span class="meta">M-02 // Output</span>
+      <span class="micro" data-goal-stamp></span>
     </div>
+    <div class="goal-name">File 100 dossiers</div>
+    <div class="meter" data-goal-meter></div>
+    <div class="figs">
+      <span class="micro" style="color:var(--muted)">Current: <span data-goal-figs style="color:var(--phosphor)"></span></span>
+      <span class="meta" data-goal-pct></span>
+    </div>
+    <div class="log">
+      <div class="entry" data-date="20260726">
+        <span class="micro" data-entry-date></span>
+        <p>File no. 001 released: make your own podcast on any topic. In <a href="archive.html">the archive</a>.</p>
+      </div>
+    </div>
+  </div>
 
-    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
-         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">Clearance on file: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
-      <a class="btn sm" href="archive.html" style="flex:none">[ Open the archive → ]</a>
+  <div class="goal" data-goal data-current="0" data-target="1000" data-unit="people">
+    <div class="goal-head">
+      <span class="meta">M-03 // Reach</span>
+      <span class="micro" data-goal-stamp></span>
     </div>
-  </section>
+    <div class="goal-name">1000 people in the dossier</div>
+    <div class="meter" data-goal-meter></div>
+    <div class="figs">
+      <span class="micro" style="color:var(--muted)">Current: <span data-goal-figs style="color:var(--phosphor)"></span></span>
+      <span class="meta" data-goal-pct></span>
+    </div>
+    <div class="log">
+      <div class="entry" data-date="20260726">
+        <span class="micro" data-entry-date></span>
+        <p>Channel opened. Counted as confirmed emails, nothing else.</p>
+      </div>
+    </div>
+  </div>
 
   <div class="foot">
     <span class="micro">The Dossier// End of file</span>
@@ -149,54 +124,49 @@
 
 </div>
 
-<script src="assets/signup.js"></script>
 <script>
 (function(){
   var CELLS = 24;
 
   function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
-  var cards = [].slice.call(document.querySelectorAll('[data-target]'));
   var latest = '';
 
-  cards.forEach(function(card){
-    var cur   = parseFloat(card.getAttribute('data-current')) || 0;
-    var goal  = parseFloat(card.getAttribute('data-target-value')) || 0;
-    var unit  = card.getAttribute('data-unit') || '';
-    var stamp = card.getAttribute('data-updated') || '';
-    var ratio = goal > 0 ? Math.min(1, Math.max(0, cur / goal)) : 0;
+  [].slice.call(document.querySelectorAll('[data-goal]')).forEach(function(goal){
+    var cur   = parseFloat(goal.getAttribute('data-current')) || 0;
+    var target= parseFloat(goal.getAttribute('data-target')) || 0;
+    var unit  = goal.getAttribute('data-unit') || '';
+    var ratio = target > 0 ? Math.min(1, Math.max(0, cur / target)) : 0;
 
     // A live but tiny number still earns one lit cell, so "started" reads
     // differently from "not started". The percentage stays exact.
     var filled = cur > 0 ? Math.max(1, Math.round(ratio * CELLS)) : 0;
 
-    card.querySelector('[data-target-meter]').innerHTML =
+    goal.querySelector('[data-goal-meter]').innerHTML =
       '<span class="on">'  + new Array(filled + 1).join('█') + '</span>' +
       '<span class="off">' + new Array(CELLS - filled + 1).join('░') + '</span>';
 
-    card.querySelector('[data-target-figs]').textContent =
-      fmt(cur) + ' / ' + fmt(goal) + ' ' + unit;
+    goal.querySelector('[data-goal-figs]').textContent =
+      fmt(cur) + ' / ' + fmt(target) + ' ' + unit;
 
     var pct = ratio * 100;
-    card.querySelector('[data-target-pct]').textContent =
+    goal.querySelector('[data-goal-pct]').textContent =
       (pct > 0 && pct < 1 ? pct.toFixed(1) : Math.round(pct)) + '%';
 
-    card.querySelector('[data-target-stamp]').textContent =
-      (card.getAttribute('data-cycle') || '') + ' · ' + stamp;
-
-    card.querySelector('[data-target-left]').textContent =
-      cur >= goal ? 'target met.' : fmt(goal - cur) + ' ' + unit + ' to go.';
-
-    if (stamp > latest) latest = stamp;
+    // The newest entry dates the goal, and the newest of those dates the page.
+    var newest = '';
+    [].slice.call(goal.querySelectorAll('.entry')).forEach(function(entry){
+      var d = entry.getAttribute('data-date') || '';
+      entry.querySelector('[data-entry-date]').textContent = d;
+      if (d > newest) newest = d;
+    });
+    goal.querySelector('[data-goal-stamp]').textContent = newest ? 'Updated ' + newest : '';
+    if (newest > latest) latest = newest;
   });
 
-  // The header reports the newest card stamp, never today, so the page
-  // cannot claim a freshness the numbers dont have.
   [].forEach.call(document.querySelectorAll('[data-last-update]'), function(el){
-    if (latest) el.textContent = latest;
+    el.textContent = latest;
   });
-  var count = document.querySelector('[data-count="targets"]');
-  if (count) count.textContent = String(cards.length);
 })();
 </script>
 </body>

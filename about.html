@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Yassine // THE DOSSIER</title>
+<meta name="description" content="23, builder and thinker. I run the self-development experiments in public, and I run ultras. The person behind the Dossier.">
+<meta property="og:title" content="Yassine // THE DOSSIER">
+<meta property="og:description" content="23, builder and thinker. Self-development, tested in public. Ultra runner working toward the hardest races in the world.">
+<meta property="og:type" content="profile">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/dossier.css">
+<style>
+  /* Subject photograph. Grayscale and framed, per the imagery rule:
+     no colour, no radius. Square crop weighted to the face. */
+  .subject{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;margin-top:24px}
+  .subject .plate{flex:none;width:260px;max-width:100%}
+  .subject .shot{position:relative;line-height:0}
+  .subject .shot img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:50% 20%;
+    filter:grayscale(1) brightness(.92) contrast(1.12)}
+  /* The studio backdrop falls to ink at the edges, so the plate sits on the
+     black page instead of punching a grey hole in it. */
+  .subject .shot::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 95% at 50% 34%,
+      rgba(9,9,9,0) 30%, rgba(9,9,9,.55) 58%, rgba(9,9,9,.92) 82%, var(--ink) 100%)}
+  .subject .read{flex:1;min-width:260px}
+  .leader{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .leader .line{flex:1;height:1px;background:var(--line-dim)}
+</style>
+</head>
+<body data-signup-success="On the list. New field notes will find you.">
+<div class="stage narrow">
+
+  <div class="nav">
+    <a class="logo" href="home.html">The Dossier//</a>
+    <div class="links">
+      <a href="home.html">How it works</a>
+      <a href="mission.html">Mission targets</a>
+      <a href="archive.html">The archive</a>
+      <a href="about.html" style="color:var(--accent)">Yassine</a>
+    </div>
+  </div>
+
+  <div class="filehead" style="margin:40px 0 16px">
+    <span>Subject file</span>
+    <span>Personnel // Open</span>
+  </div>
+
+  <div class="frame" style="padding:32px">
+    <div class="subject">
+      <div class="plate">
+        <div class="frame dim" style="padding:6px">
+          <div class="shot">
+            <img src="uploads/portrait.jpg" alt="Yassine, photographed straight on against a plain backdrop.">
+          </div>
+        </div>
+        <div class="leader">
+          <span class="line"></span>
+          <span class="micro" style="flex:none">Subject</span>
+        </div>
+      </div>
+      <div class="read">
+        <div class="h1" style="margin-bottom:16px">Yassine</div>
+        <div class="kv">
+          <span class="k">Age:</span><span class="v">23</span>
+          <span class="k">Role:</span><span class="v">Builder and thinker</span>
+          <span class="k">Subject:</span><span class="v">Self-development</span>
+          <span class="k">Sport:</span><span class="v">Ultra running</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">//──────//</div>
+
+  <section>
+    <div class="h2">Who i am</div>
+    <hr class="rule">
+    <div style="margin-top:24px">
+      <p>im 23. builder and thinker. self-development is the thing i keep coming back to, so it became the thing i work on in the open.</p>
+      <p>in my free time i do sports and push myself. right now that means running ultras, with the goal of running the hardest races in the world.</p>
+    </div>
+  </section>
+
+  <div style="background:var(--accent);color:var(--ink);padding:28px 32px;margin-top:56px">
+    <div style="font-size:11px;line-height:18px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.7">On the record</div>
+    <div style="font-size:clamp(17px,3.2vw,24px);line-height:1.3;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:8px">I was told my best ability is being a dreamer</div>
+  </div>
+
+  <section style="margin-top:56px">
+    <div style="margin-top:0">
+      <p>so now im doing it where people can see it. partly to hold myself to it, partly because someone watching might decide to become a dreamer too.</p>
+      <p>the <a href="mission.html">mission board</a> is where that gets checked. every goal im running, with the current number attached and the last update on it.</p>
+    </div>
+  </section>
+
+  <section id="clearance" data-signup="dossier-about" style="margin-top:56px">
+    <div class="frame" data-signup-box style="padding:32px 28px">
+      <div class="meta" style="margin-bottom:6px">Follow the journey</div>
+      <p style="margin:0 0 20px;color:var(--muted)">new tools, workflows, field notes, and what the goals actually did.</p>
+      <form class="capture" data-signup-form novalidate>
+        <label class="lab" for="emailAbout" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="emailAbout" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
+        <button type="submit" class="btn solid" data-signup-btn>[ Follow the journey ]</button>
+      </form>
+      <div class="status micro" data-signup-status>Declassify (unsubscribe) any time.</div>
+    </div>
+
+    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
+         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="meta">On the list: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <a class="btn sm" href="mission.html" style="flex:none">[ Mission board → ]</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span class="micro">The Dossier// End of file</span>
+    <span class="micro">Forward at your discretion</span>
+  </div>
+
+</div>
+
+<script src="assets/signup.js?v=2"></script>
+</body>
+</html>

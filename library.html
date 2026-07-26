@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>The library // THE DOSSIER</title>
+<meta name="description" content="The knowledge sources behind the Dossier. Books, essays, and material worth going back to.">
+<meta property="og:title" content="The library // THE DOSSIER">
+<meta property="og:description" content="The knowledge sources behind the Dossier. Books, essays, and material worth going back to.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/dossier.css">
+<style>
+  /* One row per source: number, title, origin, link. Same list treatment as
+     the archive, so the two records read as one system. */
+  .row{display:flex;gap:20px;padding:20px 0;border-top:1px solid var(--line-dim)}
+  .row:last-of-type{border-bottom:1px solid var(--line-dim)}
+  .row .no{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.12em;flex:none;min-width:3.2em}
+  .row .body{flex:1;min-width:0}
+  .row .ttl{color:var(--phosphor);font-weight:700;font-size:14px;letter-spacing:.06em;
+            text-transform:uppercase}
+  .row .ttl a{color:inherit}
+  .row .ttl a:hover{color:var(--accent-bright)}
+  .row .sub{margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;align-items:baseline}
+  .row .note{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:22px;max-width:60ch}
+  .row .out{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="stage narrow">
+
+  <div class="nav">
+    <a class="logo" href="home.html">The Dossier//</a>
+    <div class="links">
+      <a href="home.html">How it works</a>
+      <a href="mission.html">Mission targets</a>
+      <a href="archive.html">The archive</a>
+      <a href="library.html" style="color:var(--accent)">The library</a>
+      <a href="about.html">Yassine</a>
+    </div>
+  </div>
+
+  <div class="filehead" style="margin:40px 0 24px">
+    <span>The library</span>
+    <span><span data-count>0</span> sources on record</span>
+  </div>
+
+  <!-- ==========================================================
+       NEW SOURCE: copy one .row and set the number, title, link
+       and origin line. The count reads the rows, so nothing else
+       needs updating.
+       ========================================================== -->
+  <div>
+
+    <div class="row" data-source>
+      <span class="no">001</span>
+      <div class="body">
+        <div class="ttl">
+          <a href="https://www.navalmanack.com/" target="_blank" rel="noopener">The Almanack of Naval Ravikant</a>
+        </div>
+        <div class="sub">
+          <span class="micro">Book · Free</span>
+          <span class="micro" style="color:var(--line-dim)">//</span>
+          <span class="micro">Naval Ravikant, compiled by Eric Jorgenson</span>
+        </div>
+        <p class="note">Wealth and happiness, collected from a decade of Naval's writing and interviews. Free to read in full on the site.</p>
+        <div style="margin-top:10px">
+          <a class="out" href="https://www.navalmanack.com/" target="_blank" rel="noopener">navalmanack.com →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <span class="micro">The Dossier// End of file</span>
+    <span class="micro">Forward at your discretion</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var count = document.querySelector('[data-count]');
+  if (count) {
+    count.textContent = String(document.querySelectorAll('[data-source]').length).padStart(3, '0');
+  }
+})();
+</script>
+</body>
+</html>

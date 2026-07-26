@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>THE DOSSIER // Make your own podcast on any topic — for free</title>
+<title>THE DOSSIER // Make your own podcast on any topic, for free</title>
 <meta name="description" content="A free field guide: turn any topic into your own two-person podcast, grounded on real research, in 2 to 5 minutes. Two free tools, two copy-paste prompts.">
 <meta property="og:title" content="THE DOSSIER // Make your own podcast on any topic">
 <meta property="og:description" content="Two free tools. Two copy-paste prompts. Your own podcast on any topic, ready in 2 to 5 minutes.">
@@ -14,20 +14,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/dossier.css">
 </head>
-<body>
+<body data-signup-redirect="guide.html">
 <div class="stage narrow">
 
   <div class="nav">
     <a class="logo" href="home.html">The Dossier//</a>
     <div class="links">
-      <a href="#file">The file</a>
-      <a href="home.html#mission">Mission targets</a>
-      <a href="#clearance">Request clearance</a>
+      <a href="home.html">How it works</a>
+      <a href="mission.html">Mission targets</a>
+      <a href="archive.html">The archive</a>
     </div>
   </div>
 
   <div class="filehead" style="margin:40px 0 16px">
-    <span id="fileDate">20260725</span>
+    <span>20260726</span>
     <span>File No. 001 // How-to</span>
   </div>
 
@@ -52,7 +52,7 @@
 
     <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
          justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">Clearance on file — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <span class="meta">Clearance on file: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
       <a class="btn sm" href="guide.html" style="flex:none">[ Open file → ]</a>
     </div>
   </div>
@@ -60,8 +60,8 @@
   <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
     <span class="k">Subject:</span><span class="v">DIY podcast system</span>
     <span class="k">Signal level:</span><span class="v" style="color:var(--accent)">High</span>
-    <span class="k">Status:</span><span class="v">Classified — clearance required</span>
-    <span class="k">File no:</span><span class="v">001 · <span id="fileDate2">20260725</span></span>
+    <span class="k">Status:</span><span class="v">Classified, clearance required</span>
+    <span class="k">File no:</span><span class="v">001 · 20260726</span>
   </div>
 
   <div class="divider">//──────//</div>
@@ -72,7 +72,7 @@
     <div style="margin-top:24px">
       <p>if youre like me you have the same problem. you want to find a podcast to listen to, but none of the topics or channels are really about what you want to learn right now.</p>
       <p>so i stopped waiting for someone to make it. i started making my own.</p>
-      <p>this file is the whole system: take your favourite or desired topic, ground it on actual good research, and create your OWN two-person podcast for it — fully for free.</p>
+      <p>this file is the whole system: take your favourite or desired topic, ground it on actual good research, and create your OWN two-person podcast for it, fully for free.</p>
     </div>
   </section>
 
@@ -115,7 +115,7 @@
   <section id="clearance" data-signup="dossier-site-end">
     <div class="frame" data-signup-box style="padding:32px 28px">
       <div class="meta" style="margin-bottom:6px">Request clearance</div>
-      <p style="margin:0 0 20px;color:var(--muted)">thats the whole file. one channel and it opens — no course, no paywall, no drip sequence.</p>
+      <p style="margin:0 0 20px;color:var(--muted)">thats the whole file. one channel and it opens. no course, no paywall, no drip sequence.</p>
       <form class="capture" data-signup-form novalidate>
         <label class="lab" for="emailEnd" style="width:100%;margin-bottom:0">Secure channel</label>
         <input id="emailEnd" name="email" class="input" type="email" required
@@ -127,7 +127,7 @@
 
     <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
          justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">Clearance on file — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <span class="meta">Clearance on file: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
       <a class="btn sm" href="guide.html" style="flex:none">[ Open file → ]</a>
     </div>
   </section>
@@ -139,91 +139,6 @@
 
 </div>
 
-<script>
-(function(){
-  var KEY = 'dossier_clearance';
-
-  // Formspree form "The Dossier Signups". Set to null to stop recording;
-  // the gate still works either way. Recording never blocks the reader.
-  var SUBSCRIBE_ENDPOINT = 'https://formspree.io/f/xjgnplqz';
-
-  var d = new Date();
-  var code = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
-  document.getElementById('fileDate').textContent = code;
-  document.getElementById('fileDate2').textContent = code;
-
-  // Formspree's AJAX endpoint answers the CORS preflight, so this can be a
-  // normal JSON post. keepalive lets it outlive the redirect to the guide,
-  // which fires 700ms later and would otherwise cancel it in flight. The
-  // reader is never made to wait on the result.
-  function record(email, source){
-    if (!SUBSCRIBE_ENDPOINT) return;
-    try {
-      fetch(SUBSCRIBE_ENDPOINT, {
-        method: 'POST',
-        keepalive: true,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email,
-          source: source || 'dossier-site',
-          ref: document.referrer || ''
-        })
-      }).catch(function(){});
-    } catch(e){}
-  }
-
-  // Drives every [data-signup] block. Whichever one is used, both flip, so
-  // a returning reader isn't asked again further down the page.
-  var blocks = [].slice.call(document.querySelectorAll('[data-signup]'));
-
-  function showOnFile(email){
-    blocks.forEach(function(block){
-      block.querySelector('[data-signup-box]').style.display = 'none';
-      var onFile = block.querySelector('[data-signup-onfile]');
-      onFile.style.display = 'flex';
-      onFile.querySelector('[data-signup-onfile-email]').textContent = email;
-    });
-  }
-
-  var existing = null;
-  try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
-  if (existing && existing.email) showOnFile(existing.email);
-
-  blocks.forEach(function(block){
-    var form   = block.querySelector('[data-signup-form]');
-    var input  = block.querySelector('[data-signup-input]');
-    var btn    = block.querySelector('[data-signup-btn]');
-    var status = block.querySelector('[data-signup-status]');
-
-    function setStatus(msg, kind){
-      status.textContent = msg;
-      status.className = 'status micro' + (kind ? ' ' + kind : '');
-    }
-
-    form.addEventListener('submit', function(ev){
-      ev.preventDefault();
-      var email = input.value.trim();
-      if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
-        setStatus('Invalid channel — check the address.', 'err');
-        input.focus();
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = '[ Transmitting… ]';
-      setStatus('Verifying clearance…');
-
-      record(email, block.getAttribute('data-signup'));
-
-      try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
-      setStatus('Clearance granted — opening file…', 'ok');
-      setTimeout(function(){ window.location.href = 'guide.html'; }, 700);
-    });
-  });
-})();
-</script>
+<script src="assets/signup.js"></script>
 </body>
 </html>

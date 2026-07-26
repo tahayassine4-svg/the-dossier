@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>The archive // THE DOSSIER</title>
+<meta name="description" content="Every file released in the Dossier, with its date. All of them stay open.">
+<meta property="og:title" content="The archive // THE DOSSIER">
+<meta property="og:description" content="Every file released so far, with its date. All of them stay open, none of them expire.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/dossier.css">
+<style>
+  /* One row per released file. The number column stays fixed so the dates
+     and titles line up as the archive grows. */
+  .filerow .no{min-width:3.4em}
+  .file-stamp{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}
+</style>
+</head>
+<body data-signup-success="Clearance granted. The next file will find you.">
+<div class="stage narrow">
+
+  <div class="nav">
+    <a class="logo" href="home.html">The Dossier//</a>
+    <div class="links">
+      <a href="home.html">How it works</a>
+      <a href="mission.html">Mission targets</a>
+      <a href="archive.html" style="color:var(--accent)">The archive</a>
+    </div>
+  </div>
+
+  <div class="filehead" style="margin:40px 0 16px">
+    <span data-latest-file>20260726</span>
+    <span>Archive // Complete record</span>
+  </div>
+
+  <div class="frame" style="padding:56px 32px;text-align:center">
+    <div class="display">the archive</div>
+    <div style="color:var(--accent-bright);font-weight:700;font-size:clamp(13px,2.4vw,17px);letter-spacing:.18em;text-transform:uppercase;margin-top:12px">every file released<span class="cursor"></span></div>
+    <p style="margin:24px auto 0;max-width:50ch;text-align:center">all of them stay open. no expiry, no paywall, no account. read them in any order.</p>
+  </div>
+
+  <div class="kv" style="width:max-content;max-width:100%;margin:40px auto 0">
+    <span class="k">Files on record:</span><span class="v" data-count="files"></span>
+    <span class="k">Latest:</span><span class="v" data-latest-file></span>
+    <span class="k">Access:</span><span class="v">Open</span>
+  </div>
+
+  <div class="divider">//──────//</div>
+
+  <!-- ===========================================================
+       NEW FILE: copy one .filerow block, set data-date to the
+       publication code (YYYYMMDD), and put it at the top of the
+       list. The count and the latest date in the header derive
+       from the rows, so nothing else needs updating.
+       =========================================================== -->
+  <section id="files">
+    <div class="h2">Files // <span style="color:var(--phosphor)">newest first</span></div>
+    <hr class="rule">
+
+    <div style="margin-top:24px">
+
+      <div class="filerow" data-file data-date="20260726">
+        <span class="no">001</span>
+        <div class="body">
+          <div class="file-stamp">
+            <span class="micro" data-file-date></span>
+            <span class="tag dim">How-to</span>
+          </div>
+          <div class="ttl">Make your own podcast on any topic</div>
+          <p>two free tools, two copy-paste prompts, and a worked example. turn any topic into your own two-person podcast, grounded on real research, in 2 to 5 minutes.</p>
+          <div style="margin-top:14px">
+            <a class="btn sm" href="guide.html">[ Open file → ]</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="clearance" data-signup="dossier-archive" style="margin-top:56px">
+    <div class="frame" data-signup-box style="padding:32px 28px">
+      <div class="meta" style="margin-bottom:6px">Request clearance</div>
+      <p style="margin:0 0 20px;color:var(--muted)">the archive stays open either way. leave a channel if you want the next file the day it lands instead of finding it here later.</p>
+      <form class="capture" data-signup-form novalidate>
+        <label class="lab" for="emailArchive" style="width:100%;margin-bottom:0">Secure channel</label>
+        <input id="emailArchive" name="email" class="input" type="email" required
+               placeholder="name@domain.com" autocomplete="email" spellcheck="false" data-signup-input>
+        <button type="submit" class="btn solid" data-signup-btn>[ Request clearance ]</button>
+      </form>
+      <div class="status micro" data-signup-status>No spam. Declassify (unsubscribe) any time.</div>
+    </div>
+
+    <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
+         justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="meta">Clearance on file: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <a class="btn sm" href="mission.html" style="flex:none">[ Mission board → ]</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span class="micro">The Dossier// End of file</span>
+    <span class="micro">Forward at your discretion</span>
+  </div>
+
+</div>
+
+<script src="assets/signup.js"></script>
+<script>
+(function(){
+  var files = [].slice.call(document.querySelectorAll('[data-file]'));
+  var latest = '';
+
+  files.forEach(function(row){
+    var date = row.getAttribute('data-date') || '';
+    row.querySelector('[data-file-date]').textContent = 'Filed ' + date;
+    if (date > latest) latest = date;
+  });
+
+  var count = document.querySelector('[data-count="files"]');
+  if (count) count.textContent = String(files.length).padStart(3, '0');
+
+  [].forEach.call(document.querySelectorAll('[data-latest-file]'), function(el){
+    if (latest) el.textContent = latest;
+  });
+})();
+</script>
+</body>
+</html>

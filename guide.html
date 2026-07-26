@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex">
-<title>File No. 001 // Make your own podcast — THE DOSSIER</title>
+<title>THE DOSSIER // File No. 001 // Make your own podcast</title>
 <meta name="description" content="The full field guide: two free tools, two copy-paste prompts, and a worked example. Turn any topic into your own two-person podcast.">
 <meta property="og:title" content="File No. 001 // Make your own podcast on any topic">
 <meta property="og:description" content="Two free tools. Two copy-paste prompts. Your own podcast on any topic, ready in 2 to 5 minutes.">
@@ -15,19 +15,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/dossier.css">
 </head>
-<body>
+<body data-signup-success="On the list. File no. 002 will find you.">
 <div class="stage narrow">
 
   <div class="nav">
     <a class="logo" href="home.html">The Dossier//</a>
     <div class="links">
-      <a href="home.html#mission">Mission targets</a>
-      <span class="micro">Status: Declassified</span>
+      <a href="home.html">How it works</a>
+      <a href="mission.html">Mission targets</a>
+      <a href="archive.html">The archive</a>
     </div>
   </div>
 
   <div class="filehead" style="margin:40px 0 16px">
-    <span id="fileDate">20260725</span>
+    <span>20260726</span>
     <span>File No. 001 // How-to</span>
   </div>
 
@@ -45,7 +46,7 @@
   <div data-signup="dossier-guide-top" style="margin:40px 0 0">
     <div class="frame" data-signup-box style="padding:28px">
       <div class="meta" style="margin-bottom:6px">Get the next file</div>
-      <p style="margin:0 0 20px;color:var(--muted)">this file stays open — no email needed. drop it below only if you want file no. 002 when it drops.</p>
+      <p style="margin:0 0 20px;color:var(--muted)">this file stays open. no email needed. drop it below only if you want file no. 002 when it drops.</p>
       <form class="capture" data-signup-form novalidate>
         <label class="lab" for="signupEmailTop" style="width:100%;margin-bottom:0">Secure channel</label>
         <input id="signupEmailTop" name="email" class="input" type="email" required
@@ -57,7 +58,7 @@
 
     <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
          justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">On the list — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <span class="meta">On the list: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
       <span class="micro" style="flex:none">File no. 002 pending</span>
     </div>
   </div>
@@ -169,7 +170,7 @@
     <p style="margin-top:24px">this is what came out when i used this exact system to build a podcast on the history of money.</p>
     <div class="frame dim" style="padding:24px 28px;margin-top:20px">
       <div class="micro" style="margin-bottom:14px">Audio overview</div>
-      <div style="color:var(--phosphor);font-size:15px;margin-bottom:20px">&quot;How We Invented Money to Keep Score — made with this exact method.&quot;</div>
+      <div style="color:var(--phosphor);font-size:15px;margin-bottom:20px">&quot;How We Invented Money to Keep Score, made with this exact method.&quot;</div>
       <audio id="audio" src="uploads/podcast-episode.mp3" style="display:none"></audio>
       <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
         <button id="playBtn" class="btn sm" style="flex:none">[ Play ]</button>
@@ -187,7 +188,7 @@
   <div data-signup="dossier-guide-end" style="margin:0">
     <div class="frame" data-signup-box style="padding:28px">
       <div class="meta" style="margin-bottom:6px">Before you close the file</div>
-      <p style="margin:0 0 20px;color:var(--muted)">that was file no. 001. if it earned it, leave a channel open and no. 002 arrives the same way — one file, no drip sequence.</p>
+      <p style="margin:0 0 20px;color:var(--muted)">that was file no. 001. if it earned it, leave a channel open and no. 002 arrives the same way. one file, no drip sequence.</p>
       <form class="capture" data-signup-form novalidate>
         <label class="lab" for="signupEmailEnd" style="width:100%;margin-bottom:0">Secure channel</label>
         <input id="signupEmailEnd" name="email" class="input" type="email" required
@@ -199,7 +200,7 @@
 
     <div class="frame dim" data-signup-onfile style="display:none;padding:14px 20px;
          justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="meta">On the list — <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
+      <span class="meta">On the list: <span data-signup-onfile-email style="color:var(--phosphor)"></span></span>
       <span class="micro" style="flex:none">File no. 002 pending</span>
     </div>
   </div>
@@ -211,90 +212,10 @@
 
 </div>
 
+<script src="assets/signup.js"></script>
 <script>
 (function(){
-  var d = new Date();
-  document.getElementById('fileDate').textContent =
-    d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
-
-  /* ---- signup ---- */
-  // Drives every [data-signup] block on the page. A success in one flips
-  // them all, so the reader never sees a second form still asking after
-  // they've already signed up. Shares the landing page's Formspree form
-  // and localStorage key, so signing up there isn't asked again here.
-  // Nothing redirects on this page, so unlike the landing page this waits
-  // for the real response and reports an actual failure.
-  (function(){
-    var KEY = 'dossier_clearance';
-    var SUBSCRIBE_ENDPOINT = 'https://formspree.io/f/xjgnplqz';
-
-    var blocks = [].slice.call(document.querySelectorAll('[data-signup]'));
-    if (!blocks.length) return;
-
-    function showOnFile(email){
-      blocks.forEach(function(block){
-        block.querySelector('[data-signup-box]').style.display = 'none';
-        var onFile = block.querySelector('[data-signup-onfile]');
-        onFile.style.display = 'flex';
-        onFile.querySelector('[data-signup-onfile-email]').textContent = email;
-      });
-    }
-
-    var existing = null;
-    try { existing = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
-    if (existing && existing.email) showOnFile(existing.email);
-
-    blocks.forEach(function(block){
-      var form   = block.querySelector('[data-signup-form]');
-      var input  = block.querySelector('[data-signup-input]');
-      var btn    = block.querySelector('[data-signup-btn]');
-      var status = block.querySelector('[data-signup-status]');
-      var idle   = btn.textContent;
-
-      function setStatus(msg, kind){
-        status.textContent = msg;
-        status.className = 'status micro' + (kind ? ' ' + kind : '');
-      }
-
-      form.addEventListener('submit', function(ev){
-        ev.preventDefault();
-        var email = input.value.trim();
-        if (!email || email.indexOf('@') < 1 || email.lastIndexOf('.') < email.indexOf('@')) {
-          setStatus('Invalid channel — check the address.', 'err');
-          input.focus();
-          return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = '[ Transmitting… ]';
-        setStatus('Adding to the list…');
-
-        fetch(SUBSCRIBE_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            source: block.getAttribute('data-signup') || 'dossier-guide',
-            ref: document.referrer || ''
-          })
-        })
-        .then(function(r){
-          if (!r.ok) throw new Error('rejected');
-          try { localStorage.setItem(KEY, JSON.stringify({ email: email, grantedAt: Date.now() })); } catch(e){}
-          setStatus('On the list — file no. 002 will find you.', 'ok');
-          setTimeout(function(){ showOnFile(email); }, 1400);
-        })
-        .catch(function(){
-          btn.disabled = false;
-          btn.textContent = idle;
-          setStatus('Transmission failed. Try again in a moment.', 'err');
-        });
-      });
-    });
-  })();
-
-  /* ---- copy-paste prompts ---- */
-  var prompt1 = 'Find the best YouTube videos on [TOPIC].\n\nKeep the answer short.\n\nUse a table for the video recommendations.\nInclude these columns:\n- Title\n- Channel\n- One-line reason\n- Full YouTube URL\n\nRecommend 5–10 videos.\nPrioritize clarity, depth, credibility, and usefulness.\nAvoid clickbait, fluff, and duplicates.\n\nThen list the key subtopics for [TOPIC] in learning order.\n\nEnd with:\n- all URLs only\n- one URL per line\n- no extra words\n\nOptional Gemini deep research prompt:\n[TOPIC] — main ideas, key debates, and what to look for.';
+  var prompt1 = 'Find the best YouTube videos on [TOPIC].\n\nKeep the answer short.\n\nUse a table for the video recommendations.\nInclude these columns:\n- Title\n- Channel\n- One-line reason\n- Full YouTube URL\n\nRecommend 5–10 videos.\nPrioritize clarity, depth, credibility, and usefulness.\nAvoid clickbait, fluff, and duplicates.\n\nThen list the key subtopics for [TOPIC] in learning order.\n\nEnd with:\n- all URLs only\n- one URL per line\n- no extra words\n\nOptional Gemini deep research prompt:\n[TOPIC]: main ideas, key debates, and what to look for.';
 
   var prompt3 = 'Role & Objective:\nYou are acting as the executive producer and lead host of an engaging, high-retention audio podcast. Your goal is to synthesize the uploaded sources and research notes into a master script/guideline for a dynamic, deep-dive two-person discussion format (Audio Overview).\n\nTone & Style:\n- Conversational, sharp, accessible, and deeply intellectual yet easy to follow.\n- Avoid academic dryness or monotone listing of facts. Treat the listener like a curious peer exploring a fascinating rabbit hole.\n- Use natural dialogue cues, relatable analogies, and smooth transitions between complex subtopics.\n\nCore Instructions:\n1. Grounding: Rely strictly on the provided URLs, videos, and research text. Do not invent facts.\n2. Structure: Follow a logical learning curve from foundational concepts to nuanced debates, key takeaways, and practical applications.\n3. Interactivity (Two-Host Dynamic): Frame the discussion for two co-hosts who build off each other, one driving the core narrative and asking the "dumb questions" to clarify concepts, and the other providing deeper insights, context, and counter-arguments from the sources.\n4. Creativity: Highlight any unique cross-disciplinary connections present in the material (e.g., blending distinct domains if applicable).\n\nOutput:\nGenerate a comprehensive, engaging master discussion blueprint that prepares the AI audio generation engine to produce an immersive, natural-sounding podcast episode.';
 
